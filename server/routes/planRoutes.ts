@@ -227,15 +227,30 @@ router.post('/:id/purchase', requireAuth, (req: AuthenticatedRequest, res: Respo
     const nextBilling = getNextBillingDate(todayStr, plan.billing_frequency);
 
     const subCount = db.prepare('SELECT COUNT(*) as count FROM subscriptions').get() as { count: number };
-    const subNumber = `SUB-2026-${String(subCount.count + 1).padStart(4, '0')}`;
+    let nextSubNum = subCount.count + 1;
+    let subNumber = `SUB-2026-${String(nextSubNum).padStart(4, '0')}`;
+    while (db.prepare('SELECT id FROM subscriptions WHERE subscription_number = ?').get(subNumber)) {
+      nextSubNum++;
+      subNumber = `SUB-2026-${String(nextSubNum).padStart(4, '0')}`;
+    }
     const subId = `sub-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
     const invCount = db.prepare('SELECT COUNT(*) as count FROM invoices').get() as { count: number };
-    const invoiceNumber = `INV-2026-${String(invCount.count + 1).padStart(4, '0')}`;
+    let nextInvNum = invCount.count + 1;
+    let invoiceNumber = `INV-2026-${String(nextInvNum).padStart(4, '0')}`;
+    while (db.prepare('SELECT id FROM invoices WHERE invoice_number = ?').get(invoiceNumber)) {
+      nextInvNum++;
+      invoiceNumber = `INV-2026-${String(nextInvNum).padStart(4, '0')}`;
+    }
     const invoiceId = `inv-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
     const payCount = db.prepare('SELECT COUNT(*) as count FROM payments').get() as { count: number };
-    const paymentNumber = `PAY-2026-${String(payCount.count + 1).padStart(4, '0')}`;
+    let nextPayNum = payCount.count + 1;
+    let paymentNumber = `PAY-2026-${String(nextPayNum).padStart(4, '0')}`;
+    while (db.prepare('SELECT id FROM payments WHERE payment_number = ?').get(paymentNumber)) {
+      nextPayNum++;
+      paymentNumber = `PAY-2026-${String(nextPayNum).padStart(4, '0')}`;
+    }
     const paymentId = `pay-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
     const paymentMethod = req.body.paymentMethod || 'upi';

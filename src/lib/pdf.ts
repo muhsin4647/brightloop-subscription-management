@@ -1,6 +1,13 @@
 import { jsPDF } from 'jspdf';
 import { Invoice, InvoiceLine } from '../types/index.ts';
 
+function formatDollar(amount: number): string {
+  return `$${Number(amount || 0).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
 export function generateInvoicePDF(invoice: Invoice, lines: InvoiceLine[], customerDetails?: any) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -41,7 +48,7 @@ export function generateInvoicePDF(invoice: Invoice, lines: InvoiceLine[], custo
   if (custCompany) doc.text(custCompany, 15, 61);
   doc.text(custEmail, 15, 67);
   doc.text(custAddress, 15, 73, { maxWidth: 80 });
-  if (custTax) doc.text(`GSTIN/Tax ID: ${custTax}`, 15, 81);
+  if (custTax) doc.text(`Tax ID: ${custTax}`, 15, 81);
 
   // Meta box on right
   const rightX = pageWidth - 75;
@@ -85,9 +92,9 @@ export function generateInvoicePDF(invoice: Invoice, lines: InvoiceLine[], custo
   for (const item of lines) {
     doc.text(item.description, 18, curY, { maxWidth: 90 });
     doc.text(String(item.quantity), 115, curY, { align: 'center' });
-    doc.text(`INR ${item.unit_price.toFixed(2)}`, 138, curY, { align: 'right' });
+    doc.text(formatDollar(item.unit_price), 138, curY, { align: 'right' });
     doc.text(`${item.tax_rate}%`, 160, curY, { align: 'right' });
-    doc.text(`INR ${item.line_total.toFixed(2)}`, pageWidth - 18, curY, { align: 'right' });
+    doc.text(formatDollar(item.line_total), pageWidth - 18, curY, { align: 'right' });
 
     // underline row
     doc.setDrawColor(226, 232, 240);
@@ -102,15 +109,15 @@ export function generateInvoicePDF(invoice: Invoice, lines: InvoiceLine[], custo
 
   doc.setFontSize(9);
   doc.text('Subtotal:', sumLabelX, sumY);
-  doc.text(`INR ${invoice.subtotal.toFixed(2)}`, sumValX, sumY, { align: 'right' });
+  doc.text(formatDollar(invoice.subtotal), sumValX, sumY, { align: 'right' });
 
   if (invoice.discount_amount > 0) {
     doc.text('Discounts:', sumLabelX, sumY + 6);
-    doc.text(`- INR ${invoice.discount_amount.toFixed(2)}`, sumValX, sumY + 6, { align: 'right' });
+    doc.text(`- ${formatDollar(invoice.discount_amount)}`, sumValX, sumY + 6, { align: 'right' });
   }
 
-  doc.text('GST (18%):', sumLabelX, sumY + 12);
-  doc.text(`INR ${invoice.tax_amount.toFixed(2)}`, sumValX, sumY + 12, { align: 'right' });
+  doc.text('Tax (18%):', sumLabelX, sumY + 12);
+  doc.text(formatDollar(invoice.tax_amount), sumValX, sumY + 12, { align: 'right' });
 
   doc.setLineWidth(0.5);
   doc.line(sumLabelX - 5, sumY + 16, pageWidth - 15, sumY + 16);
@@ -118,16 +125,16 @@ export function generateInvoicePDF(invoice: Invoice, lines: InvoiceLine[], custo
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.text('Grand Total:', sumLabelX, sumY + 22);
-  doc.text(`INR ${invoice.total_amount.toFixed(2)}`, sumValX, sumY + 22, { align: 'right' });
+  doc.text(formatDollar(invoice.total_amount), sumValX, sumY + 22, { align: 'right' });
 
   doc.setFontSize(10);
   doc.setTextColor(22, 101, 52); // green-800
   doc.text('Amount Paid:', sumLabelX, sumY + 29);
-  doc.text(`INR ${invoice.amount_paid.toFixed(2)}`, sumValX, sumY + 29, { align: 'right' });
+  doc.text(formatDollar(invoice.amount_paid), sumValX, sumY + 29, { align: 'right' });
 
   doc.setTextColor(185, 28, 28); // red-700
   doc.text('Outstanding Balance:', sumLabelX, sumY + 36);
-  doc.text(`INR ${invoice.outstanding_amount.toFixed(2)}`, sumValX, sumY + 36, { align: 'right' });
+  doc.text(formatDollar(invoice.outstanding_amount), sumValX, sumY + 36, { align: 'right' });
 
   // Payment Instructions
   doc.setTextColor(30, 41, 59);
@@ -137,16 +144,16 @@ export function generateInvoicePDF(invoice: Invoice, lines: InvoiceLine[], custo
 
   doc.setFontSize(8.5);
   doc.setFont('helvetica', 'normal');
-  doc.text('Account Name: Brightloop Software Private Limited', 15, sumY + 22);
-  doc.text('Bank: HDFC Bank Ltd, Cyber City Branch', 15, sumY + 27);
-  doc.text('Account Number: 50200088991122 | IFSC: HDFC0001234', 15, sumY + 32);
-  doc.text('UPI ID: billing@brightloop | Support: billing@brightloop.io', 15, sumY + 37);
+  doc.text('Account Name: Brightloop Technologies Inc.', 15, sumY + 22);
+  doc.text('Bank: JPMorgan Chase Bank, N.A.', 15, sumY + 27);
+  doc.text('Account Number: 50200088991122 | Routing / SWIFT: CHASUS33', 15, sumY + 32);
+  doc.text('Payment Gateway: Automated Recurring Billing | Support: billing@brightloop.io', 15, sumY + 37);
 
   // Footer notes
   doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
   doc.text(
-    'Thank you for your business. Computer generated invoice; no physical signature required under IT Act 2000.',
+    'Thank you for your business. Computer generated invoice; no physical signature required.',
     pageWidth / 2,
     doc.internal.pageSize.getHeight() - 12,
     { align: 'center' }

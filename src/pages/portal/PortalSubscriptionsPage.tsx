@@ -200,6 +200,23 @@ export const PortalSubscriptionsPage: React.FC = () => {
                     Cancel Plan
                   </button>
                 )}
+
+                {sub.status === 'cancelled' && (
+                  <button
+                    onClick={() => {
+                      const matchedPlan = availablePlans.find((p) => p.id === sub.plan_id);
+                      if (matchedPlan) {
+                        setPlanToPurchase(matchedPlan);
+                      } else {
+                        setShowCatalogModal(true);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors cursor-pointer shadow-xs"
+                  >
+                    <ShoppingBag className="w-3 h-3" />
+                    Re-subscribe
+                  </button>
+                )}
               </div>
             </div>
           ))
