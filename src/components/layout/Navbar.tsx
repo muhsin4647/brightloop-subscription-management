@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext.tsx';
-import { Bell, LogOut, CheckCircle2, AlertCircle, Shield } from 'lucide-react';
+import { Bell, Search, LogOut, CheckCircle2, AlertCircle, ChevronDown } from 'lucide-react';
 import { apiRequest } from '../../lib/api.ts';
 import { AppNotification } from '../../types/index.ts';
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  onSearch?: (query: string) => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ onSearch }) => {
   const { user, role, logout } = useAuth();
   const [showNotifs, setShowNotifs] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [searchVal, setSearchVal] = useState('');
 
   const fetchNotifs = async () => {
     try {
@@ -24,49 +30,37 @@ export const Navbar: React.FC = () => {
     }
   }, [user]);
 
-  const initials = user?.name
-    ? user.name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase()
-    : 'U';
-
-  const isCustomer = role === 'CUSTOMER';
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchVal(e.target.value);
+    onSearch?.(e.target.value);
+  };
 
   return (
-    <header className="h-16 border-b border-slate-200/80 bg-white/95 backdrop-blur-md sticky top-0 z-30 px-6 flex items-center justify-between">
-      {/* Brand & Workspace */}
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white font-black text-sm tracking-tighter shadow-xs">
-          BL
-        </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-900 text-sm tracking-tight">Brightloop</span>
-            <span className="text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200/60">
-              {isCustomer ? 'Customer Portal' : role}
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-500 hidden sm:block">
-            Subscription Lifecycle &amp; Recurring Billing
-          </p>
-        </div>
+    <div className="flex items-center justify-between pb-6 mb-6 border-b border-slate-100">
+      {/* Search Input */}
+      <div className="relative w-72 sm:w-80">
+        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5" />
+        <input
+          type="text"
+          placeholder="Search..."
+          value={searchVal}
+          onChange={handleSearchChange}
+          className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200/80 rounded-full text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all"
+        />
       </div>
 
       {/* Right Controls: Notifications & User Profile */}
       <div className="flex items-center gap-3">
-        {/* Notifications Popover */}
+        {/* Notification Bell */}
         <div className="relative">
           <button
             onClick={() => setShowNotifs(!showNotifs)}
-            className="p-2 text-slate-500 hover:text-slate-900 rounded-xl hover:bg-slate-100/80 transition-colors relative cursor-pointer"
+            className="w-9 h-9 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200/60 flex items-center justify-center text-slate-600 transition-colors relative cursor-pointer"
             title="Notifications"
           >
             <Bell className="w-4 h-4" />
             {notifications.length > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
+              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
             )}
           </button>
 
@@ -99,27 +93,46 @@ export const Navbar: React.FC = () => {
           )}
         </div>
 
-        {/* User Card & Logout */}
-        <div className="flex items-center gap-3 pl-3 border-l border-slate-200/80">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold font-mono shrink-0 shadow-2xs">
-              {initials}
-            </div>
-            <div className="text-left hidden sm:block">
-              <div className="text-xs font-semibold text-slate-900 leading-tight">{user?.name}</div>
-              <div className="text-[10px] text-slate-500 font-mono leading-tight">{user?.email}</div>
-            </div>
-          </div>
-
+        {/* User Profile Lockup */}
+        <div className="relative">
           <button
-            onClick={logout}
-            className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50/80 transition-colors cursor-pointer"
-            title="Log out"
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="flex items-center gap-2.5 p-1 sm:pr-3 rounded-full hover:bg-slate-50 transition-colors cursor-pointer text-left"
           >
-            <LogOut className="w-4 h-4" />
+            <img
+              src="/src/assets/images/avatar_thomas_wills_1793431470777.jpg"
+              alt={user?.name || 'User Avatar'}
+              className="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-xs"
+              referrerPolicy="no-referrer"
+            />
+            <div className="hidden sm:block">
+              <div className="text-xs font-bold text-slate-900 leading-tight">
+                {user?.name || 'Thomas Wills'}
+              </div>
+              <div className="text-[10px] text-slate-500 font-medium leading-tight">
+                {role === 'ADMIN' ? 'Admin' : role === 'STAFF' ? 'Staff' : 'Customer'}
+              </div>
+            </div>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
           </button>
+
+          {showUserMenu && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl border border-slate-200 shadow-lg py-1.5 z-50 animate-in fade-in">
+              <div className="px-3 py-2 border-b border-slate-100">
+                <p className="text-xs font-bold text-slate-900 truncate">{user?.name}</p>
+                <p className="text-[10px] text-slate-500 truncate">{user?.email}</p>
+              </div>
+              <button
+                onClick={logout}
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer text-left font-medium"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Log out</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
-    </header>
+    </div>
   );
 };

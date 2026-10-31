@@ -396,7 +396,7 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs shadow-indigo-600/30 transition-all disabled:opacity-50 cursor-pointer"
+            className="px-5 py-2.5 text-xs font-bold text-white bg-slate-950 hover:bg-slate-800 rounded-full shadow-xs transition-all disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Generating Quotation...' : 'Generate Quotation'}
           </button>

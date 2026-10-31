@@ -123,7 +123,7 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
             )}
 
             {/* Top Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/90">
+            <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-[#faf9fd] border border-slate-200/80">
               <div className="flex items-center gap-2">
                 <StatusBadge status={invoice.status} />
                 {invoice.subscription_number && (
@@ -136,7 +136,7 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => generateInvoicePDF(invoice, lines)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download PDF</span>
@@ -155,7 +155,7 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                 {!isCustomer && (invoice.status === 'confirmed' || invoice.status === 'sent') && (
                   <button
                     onClick={handleSend}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors cursor-pointer"
                   >
                     <Send className="w-3.5 h-3.5 text-blue-600" />
                     <span>Dispatch Notice</span>
@@ -165,7 +165,7 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                 {!isCustomer && invoice.status === 'overdue' && (
                   <button
                     onClick={handleSendReminder}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition-colors cursor-pointer"
                   >
                     <BellRing className="w-3.5 h-3.5" />
                     <span>Send Reminder</span>
@@ -175,7 +175,7 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                 {invoice.outstanding_amount > 0 && invoice.status !== 'cancelled' && (
                   <button
                     onClick={() => setShowPaymentModal(true)}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors shadow-xs cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-slate-950 hover:bg-slate-800 text-white text-xs font-bold transition-colors shadow-xs cursor-pointer"
                   >
                     <CreditCard className="w-3.5 h-3.5" />
                     <span>{isCustomer ? 'Pay Online (Instant)' : 'Record Payment'}</span>
@@ -196,16 +196,16 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
 
             {/* Customer & Billing Period Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div className="p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs">
-                <span className="font-semibold text-slate-400 uppercase tracking-wider block mb-1.5 text-[10px]">Customer Details</span>
+              <div className="p-4 rounded-2xl border border-slate-200/80 bg-white shadow-2xs">
+                <span className="font-semibold text-slate-400 uppercase tracking-wider block mb-1 text-[10px]">Customer Details</span>
                 <div className="font-bold text-slate-900 text-sm">{invoice.customer_name}</div>
                 {invoice.customer_company && <div className="text-slate-600 font-medium">{invoice.customer_company}</div>}
                 <div className="text-slate-400 font-mono text-[11px] mt-1">{invoice.customer_email}</div>
                 {invoice.billing_address && <div className="text-slate-500 mt-1">{invoice.billing_address}</div>}
               </div>
 
-              <div className="p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs space-y-1.5">
-                <span className="font-semibold text-slate-400 uppercase tracking-wider block mb-1.5 text-[10px]">Commercial Terms</span>
+              <div className="p-4 rounded-2xl border border-slate-200/80 bg-white shadow-2xs space-y-1.5">
+                <span className="font-semibold text-slate-400 uppercase tracking-wider block mb-1 text-[10px]">Commercial Terms</span>
                 <div className="flex justify-between text-slate-600">
                   <span>Billing Period:</span>
                   <span className="font-mono font-semibold text-slate-800 tabular-nums">
@@ -224,25 +224,25 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
             </div>
 
             {/* Line Items Table */}
-            <div className="border border-slate-200/90 rounded-xl overflow-hidden bg-white shadow-2xs">
+            <div className="border border-slate-200/80 rounded-2xl overflow-hidden bg-white shadow-2xs">
               <table className="w-full text-xs text-left">
-                <thead className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 uppercase font-semibold">
+                <thead className="bg-[#faf9fd] border-b border-slate-100 text-slate-500 uppercase font-semibold text-[10px]">
                   <tr>
-                    <th className="py-2.5 px-3">Item Description</th>
-                    <th className="py-2.5 px-3 text-center">Qty</th>
-                    <th className="py-2.5 px-3 text-right">Unit Price</th>
-                    <th className="py-2.5 px-3 text-right">Tax Rate</th>
-                    <th className="py-2.5 px-3 text-right">Line Total</th>
+                    <th className="py-3 px-4">Item Description</th>
+                    <th className="py-3 px-4 text-center">Qty</th>
+                    <th className="py-3 px-4 text-right">Unit Price</th>
+                    <th className="py-3 px-4 text-right">Tax Rate</th>
+                    <th className="py-3 px-4 text-right">Line Total</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {lines.map((l) => (
-                    <tr key={l.id} className="hover:bg-slate-50/50">
-                      <td className="py-2.5 px-3 font-medium text-slate-800">{l.description}</td>
-                      <td className="py-2.5 px-3 text-center text-slate-600 font-mono">{l.quantity}</td>
-                      <td className="py-2.5 px-3 text-right text-slate-600 font-mono tabular-nums">{formatCurrency(l.unit_price)}</td>
-                      <td className="py-2.5 px-3 text-right text-slate-500 font-mono tabular-nums">{l.tax_rate}%</td>
-                      <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 tabular-nums">{formatCurrency(l.line_total)}</td>
+                    <tr key={l.id} className="hover:bg-[#faf9fd]/50">
+                      <td className="py-3 px-4 font-semibold text-slate-800">{l.description}</td>
+                      <td className="py-3 px-4 text-center text-slate-600 font-mono">{l.quantity}</td>
+                      <td className="py-3 px-4 text-right text-slate-600 font-mono tabular-nums">{formatCurrency(l.unit_price)}</td>
+                      <td className="py-3 px-4 text-right text-slate-500 font-mono tabular-nums">{l.tax_rate}%</td>
+                      <td className="py-3 px-4 text-right font-mono font-bold text-slate-900 tabular-nums">{formatCurrency(l.line_total)}</td>
                     </tr>
                   ))}
                 </tbody>

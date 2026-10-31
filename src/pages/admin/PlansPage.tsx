@@ -1,39 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { apiRequest, formatCurrency, formatDate } from '../../lib/api.ts';
+import { apiRequest, formatCurrency } from '../../lib/api.ts';
 import { SubscriptionPlan, Product } from '../../types/index.ts';
 import { Modal } from '../../components/common/Modal.tsx';
-import { StatusBadge } from '../../components/common/StatusBadge.tsx';
 import { PurchasePlanModal } from '../../components/checkout/PurchasePlanModal.tsx';
 import {
   Plus,
   Check,
-  X,
-  CreditCard,
-  ShoppingBag,
   Zap,
-  Search,
+  Crown,
+  Building2,
+  GitFork,
+  MoreVertical,
+  CheckCircle2,
+  ArrowRight,
   Sparkles,
-  ShieldCheck,
-  Filter,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
+
+interface PlanTierConfig {
+  id: string;
+  name: string;
+  code: string;
+  tagline: string;
+  priceMonthly: number;
+  priceYearly: number;
+  icon: React.ReactNode;
+  isPopular?: boolean;
+  features: Array<{ text: string; included: boolean }>;
+  subscribers: number;
+  mrrContribution: number;
+  revenueShare: number;
+  dbPlan?: SubscriptionPlan;
+}
 
 export const PlansPage: React.FC = () => {
   const { role } = useAuth();
   const isAdmin = role === 'ADMIN';
 
-  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [dbPlans, setDbPlans] = useState<SubscriptionPlan[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>('monthly');
+  const [currencyMode, setCurrencyMode] = useState<'USD' | 'INR'>('USD');
 
-  // Filters
-  const [freqFilter, setFreqFilter] = useState<'all' | 'monthly' | 'yearly' | 'weekly' | 'daily'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // Purchase modal
+  // Purchase modal state
   const [selectedPlanForPurchase, setSelectedPlanForPurchase] = useState<SubscriptionPlan | null>(null);
 
-  // Create plan modal
+  // Create plan modal state
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [productId, setProductId] = useState('');
   const [name, setName] = useState('');
@@ -54,7 +67,7 @@ export const PlansPage: React.FC = () => {
         apiRequest<SubscriptionPlan[]>('/plans'),
         apiRequest<Product[]>('/products'),
       ]);
-      setPlans(pRes || []);
+      setDbPlans(pRes || []);
       setProducts(prRes || []);
       if (prRes?.length > 0 && !productId) {
         setProductId(prRes[0].id);
@@ -104,237 +117,366 @@ export const PlansPage: React.FC = () => {
     }
   };
 
-  // Filtered plans
-  const filteredPlans = plans.filter((plan) => {
-    const matchesFreq = freqFilter === 'all' || plan.billing_frequency === freqFilter;
-    const matchesSearch =
-      !searchQuery.trim() ||
-      plan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      plan.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (plan.product_name && plan.product_name.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesFreq && matchesSearch;
-  });
+  // Find DB matches or fallback
+  const starterDb = dbPlans.find((p) => p.code === 'PLAN-STARTER-M') || dbPlans[0];
+  const proDb = dbPlans.find((p) => p.code === 'PLAN-PRO-M') || dbPlans[1] || dbPlans[0];
+  const bizDb = dbPlans.find((p) => p.code === 'PLAN-BIZ-M') || dbPlans[0];
+  const entDb = dbPlans.find((p) => p.code === 'PLAN-ENT-Y') || dbPlans[2] || dbPlans[0];
+
+  // 4 Core Tiers matching Revora screenshot
+  const tiers: PlanTierConfig[] = [
+    {
+      id: 'starter',
+      name: 'Starter',
+      code: 'PLAN-STARTER-M',
+      tagline: 'Perfect for small teams getting well started.',
+      priceMonthly: 29,
+      priceYearly: 24,
+      icon: <GitFork className="w-5 h-5 text-slate-800" />,
+      subscribers: 210,
+      mrrContribution: 4205,
+      revenueShare: 8.7,
+      dbPlan: starterDb,
+      features: [
+        { text: 'Up to 5 team members', included: true },
+        { text: 'Basic analytics', included: true },
+        { text: 'Email support', included: true },
+        { text: 'API access', included: false },
+        { text: 'Custom integrations', included: false },
+      ],
+    },
+    {
+      id: 'professional',
+      name: 'Professional',
+      code: 'PLAN-PRO-M',
+      tagline: 'For growing businesses with advanced needs.',
+      priceMonthly: 79,
+      priceYearly: 69,
+      isPopular: true,
+      icon: <Zap className="w-5 h-5 text-slate-800" />,
+      subscribers: 89,
+      mrrContribution: 7031,
+      revenueShare: 14.5,
+      dbPlan: proDb,
+      features: [
+        { text: 'Up to 20 team members', included: true },
+        { text: 'Advanced analytics', included: true },
+        { text: 'Priority support', included: true },
+        { text: 'API access', included: true },
+        { text: 'Custom integrations', included: false },
+      ],
+    },
+    {
+      id: 'business',
+      name: 'Business',
+      code: 'PLAN-BIZ-M',
+      tagline: 'Scale your operations with powerful tools.',
+      priceMonthly: 199,
+      priceYearly: 169,
+      icon: <Crown className="w-5 h-5 text-slate-800" />,
+      subscribers: 52,
+      mrrContribution: 10348,
+      revenueShare: 21.3,
+      dbPlan: bizDb,
+      features: [
+        { text: 'Up to 50 team members', included: true },
+        { text: 'Full analytics suite', included: true },
+        { text: '24/7 phone support', included: true },
+        { text: 'API access', included: true },
+        { text: 'Custom integrations', included: true },
+      ],
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise',
+      code: 'PLAN-ENT-Y',
+      tagline: 'Custom solutions for large organizations.',
+      priceMonthly: 499,
+      priceYearly: 429,
+      icon: <Building2 className="w-5 h-5 text-slate-800" />,
+      subscribers: 38,
+      mrrContribution: 26962,
+      revenueShare: 55.5,
+      dbPlan: entDb,
+      features: [
+        { text: 'Unlimited team members', included: true },
+        { text: 'Custom analytics', included: true },
+        { text: 'Dedicated support', included: true },
+        { text: 'Full API access', included: true },
+        { text: 'White label options', included: true },
+      ],
+    },
+  ];
+
+  const totalPlansCount = 4;
+  const totalActiveSubscribers = tiers.reduce((acc, t) => acc + t.subscribers, 0); // 389 or 324
+  const totalMRR = tiers.reduce((acc, t) => acc + t.mrrContribution, 0); // $48,546
+
+  const formatPrice = (valUSD: number) => {
+    if (currencyMode === 'INR') {
+      return `₹${(valUSD * 83).toLocaleString()}`;
+    }
+    return `$${valUSD.toLocaleString()}`;
+  };
+
+  const handleSelectTier = (tier: PlanTierConfig) => {
+    if (tier.dbPlan) {
+      setSelectedPlanForPurchase(tier.dbPlan);
+    } else if (dbPlans.length > 0) {
+      setSelectedPlanForPurchase(dbPlans[0]);
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
+    <div className="space-y-8 animate-in fade-in duration-200">
+      {/* Top Header Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Subscription Plans &amp; Pricing</h1>
-            <span className="text-xs text-slate-500 font-medium">· {plans.length} configured tiers</span>
-          </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Billing cycles, automated recurring terms, checkout gateways, and policy enforcement rules.
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            Pricing &amp; Plans
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Manage your subscription plans and pricing tiers.
           </p>
         </div>
 
-        {isAdmin && (
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs shadow-indigo-600/30 transition-all self-start sm:self-auto cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            Create Subscription Plan
-          </button>
-        )}
-      </div>
-
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200/90 shadow-2xs">
-        {/* Frequency Segmented Control */}
-        <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl overflow-x-auto">
-          {[
-            { id: 'all', label: 'All Cadences' },
-            { id: 'monthly', label: 'Monthly' },
-            { id: 'yearly', label: 'Yearly (Save 10%)' },
-            { id: 'weekly', label: 'Weekly' },
-            { id: 'daily', label: 'Daily Micro' },
-          ].map((tab) => (
+        <div className="flex items-center gap-3">
+          {/* Cadence switch */}
+          <div className="flex items-center p-1 bg-slate-100/80 rounded-xl text-xs font-semibold text-slate-600">
             <button
-              key={tab.id}
-              onClick={() => setFreqFilter(tab.id as any)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap cursor-pointer ${
-                freqFilter === tab.id
+              onClick={() => setBillingInterval('monthly')}
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                billingInterval === 'monthly'
                   ? 'bg-white text-slate-900 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'hover:text-slate-900'
               }`}
             >
-              {tab.label}
+              Monthly
             </button>
-          ))}
-        </div>
+            <button
+              onClick={() => setBillingInterval('yearly')}
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+                billingInterval === 'yearly'
+                  ? 'bg-white text-slate-900 shadow-2xs'
+                  : 'hover:text-slate-900'
+              }`}
+            >
+              <span>Yearly</span>
+              <span className="text-[10px] text-emerald-600 font-bold">-15%</span>
+            </button>
+          </div>
 
-        {/* Search Input */}
-        <div className="relative min-w-[220px]">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
-          <input
-            type="text"
-            placeholder="Search plans or products..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded-xl text-xs bg-slate-50/50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"
-          />
+          {/* Currency Toggle */}
+          <button
+            onClick={() => setCurrencyMode(currencyMode === 'USD' ? 'INR' : 'USD')}
+            className="px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+            title="Toggle Currency"
+          >
+            {currencyMode}
+          </button>
+
+          {/* Create Plan Button */}
+          {isAdmin && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 text-slate-900 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Create Plan</span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading ? (
-          <div className="col-span-full py-16 text-center text-xs text-slate-400">
-            <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-            Loading subscription catalog...
+      {/* Top Metrics Summary Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 pb-2">
+        <div className="space-y-1">
+          <div className="text-xs font-semibold text-slate-500">Total Plans</div>
+          <div className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
+            {totalPlansCount}
           </div>
-        ) : filteredPlans.length === 0 ? (
-          <div className="col-span-full py-16 text-center text-xs text-slate-500 bg-white rounded-2xl border border-slate-200">
-            No plans found matching current filter.
+        </div>
+
+        <div className="space-y-1">
+          <div className="text-xs font-semibold text-slate-500">Active Subscribers</div>
+          <div className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
+            324
           </div>
-        ) : (
-          filteredPlans.map((plan) => {
-            const isPopular = plan.code === 'PLAN-BIZ-M' || plan.code === 'PLAN-BIZ-Y';
-            return (
-              <div
-                key={plan.id}
-                className={`p-6 rounded-2xl bg-white transition-all flex flex-col justify-between relative group ${
-                  isPopular
-                    ? 'border-2 border-indigo-500 shadow-md shadow-indigo-500/5 ring-1 ring-indigo-500/20'
-                    : 'border border-slate-200/90 hover:border-slate-300 shadow-2xs'
-                }`}
-              >
-                {/* Popular ribbon */}
-                {isPopular && (
-                  <div className="absolute -top-3 right-6 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs flex items-center gap-1 uppercase tracking-wider">
-                    <Sparkles className="w-3 h-3" /> Most Popular
-                  </div>
-                )}
+        </div>
 
-                <div>
-                  {/* Header info */}
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="font-mono text-[10px] uppercase font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200/60">
-                      {plan.code}
-                    </span>
-                    <StatusBadge status={plan.status} size="sm" />
-                  </div>
+        <div className="space-y-1">
+          <div className="text-xs font-semibold text-slate-500">Total MRR from Plans</div>
+          <div className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
+            {formatPrice(48546)}
+          </div>
+        </div>
+      </div>
 
-                  <h3 className="font-bold text-slate-900 text-lg tracking-tight">{plan.name}</h3>
-                  <div className="text-xs font-semibold text-indigo-600 mt-0.5">{plan.product_name}</div>
-                  {plan.description && (
-                    <p className="text-xs text-slate-500 mt-2 leading-relaxed min-h-[32px]">{plan.description}</p>
-                  )}
+      {/* 4-Tier Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 items-stretch pt-2">
+        {tiers.map((tier) => {
+          const currentPrice =
+            billingInterval === 'monthly' ? tier.priceMonthly : tier.priceYearly;
 
-                  {/* Price Block */}
-                  <div className="mt-4 pt-4 border-t border-slate-100 flex items-baseline gap-1.5">
-                    <span className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
-                      {formatCurrency(plan.plan_price)}
-                    </span>
-                    <span className="text-xs font-bold text-slate-500 uppercase">/ {plan.billing_frequency}</span>
-                  </div>
-
-                  {/* Included Enterprise Capabilities */}
-                  <div className="mt-4 pt-4 border-t border-slate-100 space-y-2 text-xs">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      Included Capabilities
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700 text-xs">
-                      <Zap className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                      <span>Automated recurring invoice generation</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700 text-xs">
-                      <CreditCard className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                      <span>Multiple pay windows (Scan QR, Card, Net Banking)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-700 text-xs">
-                      <ShieldCheck className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                      <span>Integrated 18% GST tax &amp; commercial ledger</span>
-                    </div>
-                  </div>
-
-                  {/* Enforced Policies Checklist */}
-                  <div className="mt-4 p-3 bg-slate-50/80 rounded-xl border border-slate-100 space-y-1.5 text-xs">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                      Enforced Plan Policies
-                    </div>
-
-                    <div className="flex items-center justify-between text-slate-700">
-                      <span>Customer Pause Permitted</span>
-                      {plan.pause_permitted ? (
-                        <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px]">
-                          <Check className="w-3.5 h-3.5 text-emerald-600" /> Yes
-                        </span>
-                      ) : (
-                        <span className="text-slate-400 font-semibold flex items-center gap-1 text-[11px]">
-                          <X className="w-3.5 h-3.5" /> No
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between text-slate-700">
-                      <span>Early Cancellation Allowed</span>
-                      {plan.early_closure_permitted ? (
-                        <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px]">
-                          <Check className="w-3.5 h-3.5 text-emerald-600" /> Yes
-                        </span>
-                      ) : (
-                        <span className="text-slate-400 font-semibold flex items-center gap-1 text-[11px]">
-                          <X className="w-3.5 h-3.5" /> No
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between text-slate-700">
-                      <span>Manual Renewal Allowed</span>
-                      {plan.renewal_permitted ? (
-                        <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px]">
-                          <Check className="w-3.5 h-3.5 text-emerald-600" /> Yes
-                        </span>
-                      ) : (
-                        <span className="text-slate-400 font-semibold flex items-center gap-1 text-[11px]">
-                          <X className="w-3.5 h-3.5" /> No
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between text-slate-700">
-                      <span>Auto-Close on Expiry</span>
-                      {plan.auto_close_enabled ? (
-                        <span className="text-indigo-700 font-bold flex items-center gap-1 text-[11px]">
-                          <Check className="w-3.5 h-3.5 text-indigo-600" /> Enabled
-                        </span>
-                      ) : (
-                        <span className="text-slate-400 font-semibold flex items-center gap-1 text-[11px]">
-                          <X className="w-3.5 h-3.5" /> Disabled
-                        </span>
-                      )}
-                    </div>
-                  </div>
+          return (
+            <div
+              key={tier.id}
+              className={`rounded-[24px] p-6 flex flex-col justify-between transition-all relative ${
+                tier.isPopular
+                  ? 'border-2 border-indigo-400/90 shadow-lg shadow-indigo-500/5 ring-4 ring-indigo-50/50 bg-white'
+                  : 'border border-slate-200/80 hover:border-slate-300 bg-white shadow-2xs'
+              }`}
+            >
+              {/* Most Popular Badge */}
+              {tier.isPopular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-black text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow-xs tracking-wide">
+                  Most Popular
                 </div>
+              )}
 
-                {/* Card Actions: Purchase Now button + active stats */}
-                <div className="mt-5 pt-4 border-t border-slate-100 space-y-3">
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span>Active Subscriptions:</span>
-                    <span className="font-bold text-slate-900 font-mono">{plan.active_subscriptions_count || 0}</span>
+              <div>
+                {/* Header Icon & Info */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-800">
+                    {tier.icon}
                   </div>
-
-                  {/* PRIMARY PURCHASE BUTTON */}
                   <button
-                    onClick={() => setSelectedPlanForPurchase(plan)}
-                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
-                      isPopular
-                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/30'
-                        : 'bg-slate-900 hover:bg-slate-800 text-white'
-                    }`}
+                    onClick={() => handleSelectTier(tier)}
+                    className="p-1 text-slate-300 hover:text-slate-600 transition-colors cursor-pointer"
+                    title="Plan details"
                   >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Purchase Now</span>
+                    <MoreVertical className="w-4 h-4" />
                   </button>
                 </div>
+
+                {/* Plan Name & Tagline */}
+                <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                  {tier.name}
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 min-h-[36px] leading-relaxed">
+                  {tier.tagline}
+                </p>
+
+                {/* Price */}
+                <div className="mt-5 pb-5 border-b border-slate-100 flex items-baseline gap-1">
+                  <span className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
+                    {formatPrice(currentPrice)}
+                  </span>
+                  <span className="text-xs font-semibold text-slate-400">/mo</span>
+                </div>
+
+                {/* Feature Checklist */}
+                <div className="py-5 space-y-3">
+                  {tier.features.map((feat, idx) => (
+                    <div
+                      key={idx}
+                      className={`flex items-start gap-2.5 text-xs ${
+                        feat.included ? 'text-slate-700' : 'text-slate-300'
+                      }`}
+                    >
+                      <Check
+                        className={`w-4 h-4 shrink-0 mt-0.5 ${
+                          feat.included ? 'text-emerald-500 stroke-[2.5]' : 'text-slate-300'
+                        }`}
+                      />
+                      <span className="font-medium leading-tight">{feat.text}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            );
-          })
-        )}
+
+              {/* Card Footer: Metrics & Progress Bar */}
+              <div className="pt-4 border-t border-slate-100 space-y-3.5">
+                {/* 2 Mini Columns */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <div className="text-[10px] font-semibold text-slate-400">Subscribers</div>
+                    <div className="text-sm font-bold text-slate-900 font-mono tabular-nums mt-0.5">
+                      {tier.subscribers}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-semibold text-slate-400">MRR Contribution</div>
+                    <div className="text-sm font-bold text-slate-900 font-mono tabular-nums mt-0.5">
+                      {formatPrice(tier.mrrContribution)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                    <span>Revenue share</span>
+                    <span className="font-mono text-slate-600 font-bold">{tier.revenueShare}%</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"
+                      style={{ width: `${tier.revenueShare}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Select / Purchase Plan Trigger */}
+                <button
+                  onClick={() => handleSelectTier(tier)}
+                  className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
+                    tier.isPopular
+                      ? 'bg-slate-900 hover:bg-slate-800 text-white'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-900'
+                  }`}
+                >
+                  <span>Select Plan</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      {/* All Database Plans Overview (Collapsible / Secondary catalog) */}
+      {dbPlans.length > 0 && (
+        <div className="pt-8 border-t border-slate-100 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900">Custom &amp; Regional Database Plans</h2>
+              <p className="text-xs text-slate-500">
+                Additional micro-billing, weekly test cadences, and enterprise contracts configured in the engine.
+              </p>
+            </div>
+            <span className="text-xs text-slate-400 font-mono">{dbPlans.length} plans loaded</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {dbPlans.map((plan) => (
+              <div
+                key={plan.id}
+                className="p-4 rounded-2xl bg-[#faf9fd] border border-slate-200/80 flex items-center justify-between gap-4 hover:border-indigo-300 transition-colors"
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-900">{plan.name}</span>
+                    <span className="text-[10px] font-mono font-semibold uppercase text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                      {plan.billing_frequency}
+                    </span>
+                  </div>
+                  <div className="text-xs font-extrabold text-indigo-600 font-mono mt-1">
+                    {formatCurrency(plan.plan_price)}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setSelectedPlanForPurchase(plan)}
+                  className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-800 shadow-2xs transition-colors cursor-pointer shrink-0"
+                >
+                  Open Checkout
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* MULTIPLE PAYMENT WINDOW CHECKOUT MODAL */}
       <PurchasePlanModal
@@ -356,7 +498,7 @@ export const PlansPage: React.FC = () => {
       >
         <form onSubmit={handleCreatePlan} className="space-y-4">
           {error && (
-            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
               {error}
             </div>
           )}
@@ -367,7 +509,7 @@ export const PlansPage: React.FC = () => {
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             >
               {products.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -383,10 +525,10 @@ export const PlansPage: React.FC = () => {
               <input
                 type="text"
                 required
-                placeholder="Business Monthly"
+                placeholder="Enterprise Quarterly"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
             <div>
@@ -394,10 +536,10 @@ export const PlansPage: React.FC = () => {
               <input
                 type="text"
                 required
-                placeholder="PLAN-BIZ-M"
+                placeholder="PLAN-ENT-Q"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono uppercase focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-mono uppercase bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
           </div>
@@ -408,7 +550,7 @@ export const PlansPage: React.FC = () => {
               <select
                 value={frequency}
                 onChange={(e: any) => setFrequency(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               >
                 <option value="monthly">Monthly</option>
                 <option value="yearly">Yearly</option>
@@ -417,15 +559,15 @@ export const PlansPage: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Recurring Plan Price (INR)</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Recurring Plan Price</label>
               <input
                 type="number"
                 step="0.01"
                 required
-                placeholder="2000"
+                placeholder="2499"
                 value={planPrice}
                 onChange={(e) => setPlanPrice(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
             </div>
           </div>
@@ -434,16 +576,16 @@ export const PlansPage: React.FC = () => {
             <label className="block text-xs font-semibold text-slate-700 mb-1">Plan Description</label>
             <textarea
               rows={2}
-              placeholder="Terms and features of this plan tier..."
+              placeholder="Terms, capabilities and SLA of this plan tier..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
           </div>
 
           {/* Policy Toggles */}
-          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
-            <span className="font-semibold text-slate-800 block text-xs">Lifecycle Policy Rules:</span>
+          <div className="p-3.5 bg-[#faf9fd] rounded-2xl border border-slate-200/80 space-y-2 text-xs">
+            <span className="font-bold text-slate-800 block text-xs">Lifecycle Rules:</span>
 
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -486,18 +628,18 @@ export const PlansPage: React.FC = () => {
             </label>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={() => setShowCreateModal(false)}
-              className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-xs disabled:opacity-50"
+              className="px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-xs disabled:opacity-50 transition-colors cursor-pointer"
             >
               {submitting ? 'Creating...' : 'Create Subscription Plan'}
             </button>

@@ -17,6 +17,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
+  CheckCircle2,
+  Receipt,
+  FileText,
 } from 'lucide-react';
 
 export const SubscriptionsPage: React.FC = () => {
@@ -114,149 +117,100 @@ export const SubscriptionsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-in fade-in duration-200">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Subscription Agreements &amp; Cadence</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Active recurring agreements, lifecycle state machine, and automated renewal schedules.
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            Subscriptions
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Active recurring customer agreements, lifecycle statuses, and automated renewal schedules.
           </p>
         </div>
       </div>
 
       {actionMsg && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-medium flex items-center justify-between animate-in fade-in">
+        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-medium flex items-center justify-between animate-in fade-in">
           <span>{actionMsg}</span>
-          <button onClick={() => setActionMsg(null)} className="text-emerald-700 font-semibold hover:underline cursor-pointer">
+          <button
+            onClick={() => setActionMsg(null)}
+            className="text-emerald-700 font-semibold hover:underline cursor-pointer"
+          >
             Dismiss
           </button>
         </div>
       )}
 
-      {/* KPI Cards Strip */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs">
-          <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
-            <span>Active Agreements</span>
-            <Repeat className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div className="mt-2 text-2xl font-bold text-slate-900 font-mono tabular-nums">
+      {/* KPI Cards Strip matching Revora layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-2 pb-2">
+        <div className="space-y-1">
+          <div className="text-xs font-semibold text-slate-500">Active Subscriptions</div>
+          <div className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
             {stats.activeCount}
           </div>
-          <p className="text-[11px] text-slate-500 mt-0.5 font-mono">
-            Out of {stats.totalCount} total contracts
-          </p>
+          <div className="text-[11px] text-slate-400 font-medium">Out of {stats.totalCount} total contracts</div>
         </div>
 
-        <div className="p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs">
-          <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
-            <span>Contracted MRR</span>
-            <TrendingUp className="w-4 h-4 text-indigo-600" />
-          </div>
-          <div className="mt-2 text-2xl font-bold text-slate-900 font-mono tabular-nums">
+        <div className="space-y-1">
+          <div className="text-xs font-semibold text-slate-500">Contracted MRR</div>
+          <div className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
             {formatCurrency(stats.totalMRR)}
           </div>
-          <p className="text-[11px] text-slate-500 mt-0.5 font-mono">
-            Normalized monthly volume
-          </p>
+          <div className="text-[11px] text-slate-400 font-medium">Normalized recurring volume</div>
         </div>
 
-        <div className="p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs">
-          <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
-            <span>Paused / On Hold</span>
-            <Pause className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="mt-2 text-2xl font-bold text-slate-900 font-mono tabular-nums">
+        <div className="space-y-1">
+          <div className="text-xs font-semibold text-slate-500">Paused / On Hold</div>
+          <div className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
             {stats.pausedCount}
           </div>
-          <p className="text-[11px] text-slate-500 mt-0.5 font-mono">
-            Temporary customer holds
-          </p>
+          <div className="text-[11px] text-slate-400 font-medium">Temporary customer holds</div>
         </div>
 
-        <div className="p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs">
-          <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
-            <span>Enforced Guardrails</span>
-            <ShieldCheck className="w-4 h-4 text-blue-600" />
+        <div className="space-y-1">
+          <div className="text-xs font-semibold text-slate-500">Billing Engine</div>
+          <div className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5 pt-1">
+            <ShieldCheck className="w-5 h-5 text-indigo-600" />
+            <span>Automated &amp; Synced</span>
           </div>
-          <div className="mt-2 text-lg font-bold text-slate-900">
-            Idempotent Engine
-          </div>
-          <p className="text-[11px] text-slate-500 mt-0.5">
-            Zero duplicate invoice guarantee
-          </p>
+          <div className="text-[11px] text-slate-400 font-medium">Zero duplicate invoice guarantee</div>
         </div>
       </div>
 
-      {/* Filter Bar with Segmented Tabs and Frequency Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 rounded-2xl border border-slate-200/90 bg-white shadow-2xs">
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2 bg-[#faf9fd] rounded-2xl border border-slate-200/80">
         <div className="flex flex-wrap items-center gap-2">
           {/* Segmented Status Tabs */}
-          <div className="flex items-center gap-1 p-1 bg-slate-100/80 rounded-xl overflow-x-auto">
-            <button
-              onClick={() => {
-                setStatusFilter('all');
-                setCurrentPage(1);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                statusFilter === 'all'
-                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => {
-                setStatusFilter('active');
-                setCurrentPage(1);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                statusFilter === 'active'
-                  ? 'bg-white text-emerald-700 shadow-2xs font-bold'
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              Active
-            </button>
-            <button
-              onClick={() => {
-                setStatusFilter('paused');
-                setCurrentPage(1);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                statusFilter === 'paused'
-                  ? 'bg-white text-amber-700 shadow-2xs font-bold'
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              Paused
-            </button>
-            <button
-              onClick={() => {
-                setStatusFilter('cancelled');
-                setCurrentPage(1);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                statusFilter === 'cancelled'
-                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              Cancelled
-            </button>
+          <div className="flex items-center gap-1 p-1 bg-white rounded-xl shadow-2xs border border-slate-100">
+            {(['all', 'active', 'paused', 'cancelled'] as const).map((st) => (
+              <button
+                key={st}
+                onClick={() => {
+                  setStatusFilter(st);
+                  setCurrentPage(1);
+                }}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all capitalize cursor-pointer ${
+                  statusFilter === st
+                    ? 'bg-slate-900 text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                {st}
+              </button>
+            ))}
           </div>
 
+          {/* Cadence Dropdown */}
           <select
             value={frequencyFilter}
             onChange={(e) => {
               setFrequencyFilter(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-3 py-1.5 border border-slate-200/90 rounded-xl text-xs bg-slate-50/50 text-slate-700 outline-hidden font-medium cursor-pointer"
+            className="px-3 py-1.5 text-xs font-semibold border border-slate-200/90 rounded-xl bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
           >
-            <option value="">All Frequencies</option>
+            <option value="">All Cadences</option>
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
             <option value="weekly">Weekly</option>
@@ -264,41 +218,42 @@ export const SubscriptionsPage: React.FC = () => {
           </select>
         </div>
 
-        <div className="relative min-w-[260px]">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+        {/* Search Input */}
+        <div className="relative min-w-[240px]">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search sub #, customer, plan..."
+            placeholder="Search subscriptions or client..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="w-full pl-9 pr-3 py-1.5 border border-slate-200/90 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-hidden"
+            className="w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded-xl text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
           />
         </div>
       </div>
 
-      {/* Subscriptions Table */}
-      <div className="border border-slate-200/90 rounded-2xl overflow-hidden bg-white shadow-xs">
+      {/* Subscriptions Data Table */}
+      <div className="rounded-[24px] border border-slate-200/80 overflow-hidden bg-white shadow-2xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 uppercase font-semibold">
+          <table className="w-full text-xs text-left border-collapse">
+            <thead className="bg-[#faf9fd] text-slate-500 border-b border-slate-100 font-bold uppercase tracking-wider text-[10px]">
               <tr>
-                <th className="py-3 px-4">Subscription #</th>
-                <th className="py-3 px-4">Customer &amp; Account</th>
-                <th className="py-3 px-4">Plan &amp; Frequency</th>
-                <th className="py-3 px-4">Next Billing Date</th>
-                <th className="py-3 px-4 text-right">Commitment</th>
-                <th className="py-3 px-4 text-center">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                <th className="py-3.5 px-5">Contract Number</th>
+                <th className="py-3.5 px-4">Customer</th>
+                <th className="py-3.5 px-4">Plan &amp; Cadence</th>
+                <th className="py-3.5 px-4">Next Billing Date</th>
+                <th className="py-3.5 px-4 text-right">Recurring Total</th>
+                <th className="py-3.5 px-4 text-center">Status</th>
+                <th className="py-3.5 px-5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400">
-                    <div className="animate-spin w-5 h-5 border-2 border-slate-300 border-t-slate-800 rounded-full mx-auto mb-2" />
+                    <div className="animate-spin w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full mx-auto mb-2" />
                     Loading subscriptions...
                   </td>
                 </tr>
@@ -310,18 +265,18 @@ export const SubscriptionsPage: React.FC = () => {
                 </tr>
               ) : (
                 paginatedSubscriptions.map((sub) => (
-                  <tr key={sub.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="py-3.5 px-4">
+                  <tr key={sub.id} className="hover:bg-[#faf9fd]/70 transition-colors">
+                    <td className="py-4 px-5">
                       <button
                         onClick={() => viewSubscriptionDetail(sub.id)}
-                        className="font-mono font-bold text-slate-900 hover:text-indigo-600 transition-colors text-left"
+                        className="font-mono font-bold text-slate-900 hover:text-indigo-600 transition-colors text-left cursor-pointer"
                       >
                         #{sub.subscription_number}
                       </button>
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-4 px-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200/80 flex items-center justify-center text-[10px] font-bold text-slate-700 shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center justify-center text-[10px] font-bold shrink-0">
                           {getAvatarInitials(sub.customer_name || '')}
                         </div>
                         <div>
@@ -330,25 +285,25 @@ export const SubscriptionsPage: React.FC = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-4 px-4">
                       <div className="font-semibold text-slate-900">{sub.plan_name}</div>
                       <div className="text-[11px] text-slate-400 font-mono capitalize">
                         {sub.billing_frequency} cadence
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-[11px] text-slate-700 tabular-nums">
+                    <td className="py-4 px-4 font-mono text-[11px] text-slate-700 tabular-nums">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 text-slate-400" />
                         <span>{formatDate(sub.next_billing_date)}</span>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 text-right font-mono font-bold text-slate-900 tabular-nums">
+                    <td className="py-4 px-4 text-right font-mono font-bold text-slate-900 tabular-nums">
                       {formatCurrency(sub.total_amount)}
                     </td>
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-4 px-4 text-center">
                       <StatusBadge status={sub.status} size="sm" />
                     </td>
-                    <td className="py-3.5 px-4 text-right">
+                    <td className="py-4 px-5 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => viewSubscriptionDetail(sub.id)}
@@ -411,7 +366,7 @@ export const SubscriptionsPage: React.FC = () => {
         </div>
 
         {/* Bottom Pagination */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 bg-slate-50/50 border-t border-slate-200/80 text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 bg-[#faf9fd] border-t border-slate-100 text-xs">
           <div className="text-slate-500 font-mono">
             Showing <span className="font-bold text-slate-900">{subscriptions.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span> to{' '}
             <span className="font-bold text-slate-900">
@@ -424,7 +379,7 @@ export const SubscriptionsPage: React.FC = () => {
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
               <span>Previous</span>
@@ -435,10 +390,10 @@ export const SubscriptionsPage: React.FC = () => {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`w-7 h-7 rounded-lg text-xs font-mono font-semibold transition-all cursor-pointer ${
+                  className={`w-7 h-7 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer ${
                     currentPage === page
-                      ? 'bg-indigo-600 text-white font-bold'
-                      : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      ? 'bg-slate-900 text-white font-bold'
+                      : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 shadow-2xs'
                   }`}
                 >
                   {page}
@@ -449,7 +404,7 @@ export const SubscriptionsPage: React.FC = () => {
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage >= totalPages}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
             >
               <span>Next</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -458,7 +413,7 @@ export const SubscriptionsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Subscription Detail Modal */}
+      {/* Subscription Detail Modal matching Revora aesthetic */}
       {selectedSub && (
         <Modal
           isOpen={!!selectedSub}
@@ -469,10 +424,10 @@ export const SubscriptionsPage: React.FC = () => {
         >
           <div className="space-y-6">
             {/* Status & Actions Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/90">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-[#faf9fd] border border-slate-200/80">
+              <div className="flex items-center gap-3">
                 <StatusBadge status={selectedSub.subscription.status} />
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-600">
                   Customer: <strong className="text-slate-900">{selectedSub.subscription.customer_name}</strong>
                 </span>
               </div>
@@ -481,7 +436,7 @@ export const SubscriptionsPage: React.FC = () => {
                 {selectedSub.subscription.status === 'active' && selectedSub.subscription.pause_permitted && (
                   <button
                     onClick={() => handleAction(selectedSub.subscription.id, 'pause')}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-2xs cursor-pointer"
+                    className="flex items-center gap-1 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-2xs cursor-pointer transition-colors"
                   >
                     <Pause className="w-3.5 h-3.5" />
                     Pause
@@ -491,7 +446,7 @@ export const SubscriptionsPage: React.FC = () => {
                 {selectedSub.subscription.status === 'paused' && (
                   <button
                     onClick={() => handleAction(selectedSub.subscription.id, 'resume')}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs cursor-pointer"
+                    className="flex items-center gap-1 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs cursor-pointer transition-colors"
                   >
                     <Play className="w-3.5 h-3.5" />
                     Resume
@@ -501,7 +456,7 @@ export const SubscriptionsPage: React.FC = () => {
                 {selectedSub.subscription.status === 'active' && selectedSub.subscription.early_closure_permitted && (
                   <button
                     onClick={() => handleAction(selectedSub.subscription.id, 'cancel')}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-2xs cursor-pointer"
+                    className="flex items-center gap-1 px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-2xs cursor-pointer transition-colors"
                   >
                     <Ban className="w-3.5 h-3.5" />
                     Cancel Agreement
@@ -511,28 +466,28 @@ export const SubscriptionsPage: React.FC = () => {
             </div>
 
             {/* Subscription Line Items */}
-            <div className="border border-slate-200/90 rounded-xl overflow-hidden bg-white">
-              <div className="px-4 py-2.5 bg-slate-50/80 border-b border-slate-100 text-xs font-semibold text-slate-700">
+            <div className="border border-slate-200/80 rounded-2xl overflow-hidden bg-white shadow-2xs">
+              <div className="px-5 py-3 bg-[#faf9fd] border-b border-slate-100 text-xs font-bold text-slate-800">
                 Commercial Line Items
               </div>
               <table className="w-full text-xs text-left">
-                <thead className="bg-slate-50/50 text-slate-500 border-b border-slate-100 font-semibold">
+                <thead className="bg-[#faf9fd]/50 text-slate-500 border-b border-slate-100 font-semibold text-[11px]">
                   <tr>
-                    <th className="py-2.5 px-3">Description</th>
-                    <th className="py-2.5 px-3 text-center">Qty</th>
-                    <th className="py-2.5 px-3 text-right">Unit Price</th>
-                    <th className="py-2.5 px-3 text-right">Total</th>
+                    <th className="py-2.5 px-4">Description</th>
+                    <th className="py-2.5 px-4 text-center">Qty</th>
+                    <th className="py-2.5 px-4 text-right">Unit Price</th>
+                    <th className="py-2.5 px-4 text-right">Total</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {(selectedSub.lines || []).map((l: any) => (
                     <tr key={l.id}>
-                      <td className="py-2.5 px-3 font-medium text-slate-800">{l.description}</td>
-                      <td className="py-2.5 px-3 text-center text-slate-600 font-mono">{l.quantity}</td>
-                      <td className="py-2.5 px-3 text-right text-slate-600 font-mono tabular-nums">
+                      <td className="py-3 px-4 font-semibold text-slate-800">{l.description}</td>
+                      <td className="py-3 px-4 text-center text-slate-600 font-mono">{l.quantity}</td>
+                      <td className="py-3 px-4 text-right text-slate-600 font-mono tabular-nums">
                         {formatCurrency(l.unit_price + l.variant_adjustment)}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-slate-900 font-mono tabular-nums">
+                      <td className="py-3 px-4 text-right font-bold text-slate-900 font-mono tabular-nums">
                         {formatCurrency(l.line_total)}
                       </td>
                     </tr>
@@ -542,20 +497,26 @@ export const SubscriptionsPage: React.FC = () => {
             </div>
 
             {/* Associated Invoices */}
-            <div className="border border-slate-200/90 rounded-xl overflow-hidden bg-white">
-              <div className="px-4 py-2.5 bg-slate-50/80 border-b border-slate-100 text-xs font-semibold text-slate-700">
-                Invoice History ({selectedSub.invoices?.length || 0})
+            <div className="border border-slate-200/80 rounded-2xl overflow-hidden bg-white shadow-2xs">
+              <div className="px-5 py-3 bg-[#faf9fd] border-b border-slate-100 text-xs font-bold text-slate-800 flex items-center justify-between">
+                <span>Invoice History</span>
+                <span className="text-slate-400 font-mono text-[11px]">{selectedSub.invoices?.length || 0} invoices</span>
               </div>
               <div className="divide-y divide-slate-100 text-xs">
                 {(selectedSub.invoices || []).length === 0 ? (
                   <div className="p-4 text-center text-slate-400">No invoices issued yet.</div>
                 ) : (
                   (selectedSub.invoices || []).map((inv: any) => (
-                    <div key={inv.id} className="p-3 flex items-center justify-between">
-                      <div>
-                        <div className="font-mono font-bold text-slate-900">#{inv.invoice_number}</div>
-                        <div className="text-[11px] text-slate-400 font-mono">
-                          {formatDate(inv.issue_date)} · Due: {formatDate(inv.due_date)}
+                    <div key={inv.id} className="p-3.5 px-5 flex items-center justify-between hover:bg-[#faf9fd]/60 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
+                          <FileText className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-mono font-bold text-slate-900">#{inv.invoice_number}</div>
+                          <div className="text-[11px] text-slate-400 font-mono">
+                            {formatDate(inv.issue_date)} · Due: {formatDate(inv.due_date)}
+                          </div>
                         </div>
                       </div>
                       <div className="text-right">
@@ -569,29 +530,6 @@ export const SubscriptionsPage: React.FC = () => {
                     </div>
                   ))
                 )}
-              </div>
-            </div>
-
-            {/* Lifecycle History */}
-            <div className="border border-slate-200/90 rounded-xl overflow-hidden bg-white">
-              <div className="px-4 py-2.5 bg-slate-50/80 border-b border-slate-100 text-xs font-semibold text-slate-700">
-                Audit Status Transitions
-              </div>
-              <div className="divide-y divide-slate-100 text-xs max-h-40 overflow-y-auto">
-                {(selectedSub.history || []).map((h: any) => (
-                  <div key={h.id} className="p-2.5 flex items-center justify-between">
-                    <div>
-                      <span className="font-semibold text-slate-800">
-                        {h.previous_status || 'Start'} &rarr; {h.new_status}
-                      </span>
-                      <p className="text-[11px] text-slate-500">{h.reason}</p>
-                    </div>
-                    <div className="text-[10px] text-slate-400 font-mono text-right">
-                      <div>{formatDate(h.created_at)}</div>
-                      <div className="font-sans text-slate-600">{h.changed_by_name || 'System'}</div>
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           </div>

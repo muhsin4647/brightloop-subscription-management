@@ -54,12 +54,12 @@ function MainRouter() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#f4f3fb] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-lg shadow-indigo-500/20 animate-pulse">
-            BL
+            R
           </div>
-          <span className="text-xs text-slate-600 font-bold tracking-wider uppercase">Loading Brightloop Platform...</span>
+          <span className="text-xs text-slate-600 font-bold tracking-wider uppercase">Loading Revora Platform...</span>
         </div>
       </div>
     );
@@ -78,16 +78,19 @@ function MainRouter() {
 
   // Render main application shell
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
-      <Navbar />
+    <div className="min-h-screen bg-[#f4f3fb] flex font-sans text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
+      {/* Revora Soft-Lavender Sidebar */}
+      <Sidebar currentPath={currentPath} onNavigate={navigate} />
 
-      <div className="flex flex-1">
-        <Sidebar currentPath={currentPath} onNavigate={navigate} />
+      {/* Main Container: Crisp white card with rounded-28px */}
+      <div className="flex-1 p-3 sm:p-5 flex flex-col min-w-0 min-h-screen">
+        <main className="flex-1 bg-white rounded-[28px] border border-slate-200/60 shadow-sm p-6 sm:p-8 flex flex-col overflow-y-auto">
+          {/* Integrated Top Bar with Search & Profile */}
+          <Navbar />
 
-        <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto overflow-x-hidden">
           {/* Operations & Admin Routes */}
           {role !== 'CUSTOMER' && (
-            <>
+            <div className="flex-1">
               {currentPath === '/' && <DashboardPage onNavigate={navigate} />}
               {currentPath === '/subscriptions' && <SubscriptionsPage />}
               {currentPath === '/invoices' && <InvoicesPage />}
@@ -101,18 +104,18 @@ function MainRouter() {
               {currentPath === '/taxes-discounts' && <TaxesDiscountsPage />}
               {currentPath === '/staff' && <StaffPage />}
               {currentPath === '/audit-logs' && <AuditLogsPage />}
-            </>
+            </div>
           )}
 
           {/* Customer Self-Service Portal Routes */}
           {role === 'CUSTOMER' && (
-            <>
+            <div className="flex-1">
               {currentPath === '/portal' && <PortalDashboardPage onNavigate={navigate} />}
               {currentPath === '/portal/subscriptions' && <PortalSubscriptionsPage />}
               {currentPath === '/portal/invoices' && <PortalInvoicesPage />}
               {currentPath === '/portal/payments' && <PortalPaymentsPage />}
               {currentPath === '/portal/profile' && <PortalProfilePage />}
-            </>
+            </div>
           )}
         </main>
       </div>

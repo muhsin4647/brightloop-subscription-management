@@ -256,28 +256,28 @@ export const PurchasePlanModal: React.FC<PurchasePlanModalProps> = ({
   const timeFormatted = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-4xl bg-white rounded-[28px] shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Top Bar */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-900 text-white">
+        <div className="px-7 py-4 border-b border-slate-100 flex items-center justify-between bg-[#faf9fd]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-xs">
               <ShieldCheck className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold tracking-tight text-white">Brightloop Secure Checkout</h2>
-                <span className="text-[10px] font-mono uppercase bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-400/20">
+                <h2 className="text-sm font-bold tracking-tight text-slate-900">Revora Secure Checkout</h2>
+                <span className="text-[10px] font-mono font-bold uppercase bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200/60">
                   {plan.billing_frequency} Cycle
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Instant subscription activation and automated tax invoicing</p>
+              <p className="text-[11px] text-slate-500 font-medium">Instant subscription activation and automated tax invoicing</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200/80 text-slate-500 hover:text-slate-800 transition-colors flex items-center justify-center cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -344,12 +344,12 @@ export const PurchasePlanModal: React.FC<PurchasePlanModalProps> = ({
             /* DUAL PANE CHECKOUT */
             <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[460px]">
               {/* LEFT PANE: Order Summary & Plan Information (5 cols) */}
-              <div className="lg:col-span-5 bg-slate-50/70 p-6 border-b lg:border-b-0 lg:border-r border-slate-200 flex flex-col justify-between">
-                <div className="space-y-4">
+              <div className="lg:col-span-5 bg-[#faf9fd] p-7 border-b lg:border-b-0 lg:border-r border-slate-100 flex flex-col justify-between">
+                <div className="space-y-5">
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Selected Plan</span>
-                    <h3 className="text-lg font-bold text-slate-900 mt-0.5">{plan.name}</h3>
-                    <div className="text-xs font-medium text-indigo-600">{plan.product_name}</div>
+                    <h3 className="text-xl font-extrabold text-slate-900 tracking-tight mt-0.5">{plan.name}</h3>
+                    <div className="text-xs font-semibold text-indigo-600">{plan.product_name}</div>
                     {plan.description && (
                       <p className="text-xs text-slate-500 mt-2 leading-relaxed">{plan.description}</p>
                     )}
@@ -357,14 +357,14 @@ export const PurchasePlanModal: React.FC<PurchasePlanModalProps> = ({
 
                   {/* Customer assignment if admin/staff */}
                   {isStaffOrAdmin && (
-                    <div className="pt-3 border-t border-slate-200/80">
+                    <div className="pt-3 border-t border-slate-200/60">
                       <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1">
                         Subscribing Customer Account
                       </label>
                       <select
                         value={selectedCustomerId}
                         onChange={(e) => setSelectedCustomerId(e.target.value)}
-                        className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                       >
                         {customers.map((c) => (
                           <option key={c.id} value={c.id}>
@@ -376,7 +376,7 @@ export const PurchasePlanModal: React.FC<PurchasePlanModalProps> = ({
                   )}
 
                   {/* Coupon / Promo code box */}
-                  <div className="pt-3 border-t border-slate-200/80">
+                  <div className="pt-3 border-t border-slate-200/60">
                     <label className="block text-[11px] font-semibold text-slate-700 mb-1">
                       Have a Promo / Discount Code?
                     </label>
@@ -386,15 +386,15 @@ export const PurchasePlanModal: React.FC<PurchasePlanModalProps> = ({
                         placeholder="e.g. WELCOME10"
                         value={discountCode}
                         onChange={(e) => setDiscountCode(e.target.value)}
-                        className="flex-1 px-3 py-1.5 uppercase font-mono bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500"
+                        className="flex-1 px-3 py-1.5 uppercase font-mono bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                       />
                       <button
                         type="button"
                         onClick={handleApplyDiscount}
                         disabled={applyingDiscount || !discountCode.trim()}
-                        className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
+                        className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer"
                       >
-                        {applyingDiscount ? 'Applying...' : 'Apply'}
+                        {applyingDiscount ? '...' : 'Apply'}
                       </button>
                     </div>
                     {discountApplied && (
@@ -407,7 +407,7 @@ export const PurchasePlanModal: React.FC<PurchasePlanModalProps> = ({
                   </div>
 
                   {/* Price Breakdown */}
-                  <div className="p-3.5 bg-white rounded-xl border border-slate-200/80 space-y-2 text-xs">
+                  <div className="p-4 bg-white rounded-2xl border border-slate-200/80 space-y-2.5 text-xs shadow-2xs">
                     <div className="flex justify-between text-slate-600">
                       <span>Plan Subscription ({plan.billing_frequency})</span>
                       <span className="font-mono font-medium">{formatCurrency(basePrice)}</span>
@@ -425,9 +425,9 @@ export const PurchasePlanModal: React.FC<PurchasePlanModalProps> = ({
                       <span className="font-mono font-medium">{formatCurrency(taxAmount)}</span>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-200 flex justify-between items-baseline font-bold text-slate-900">
-                      <span className="text-sm">Total Due Today</span>
-                      <span className="text-lg font-black text-slate-900 font-mono">
+                    <div className="pt-2 border-t border-slate-100 flex justify-between items-baseline font-bold text-slate-900">
+                      <span className="text-xs">Total Due Today</span>
+                      <span className="text-xl font-extrabold text-slate-900 font-mono tabular-nums">
                         {formatCurrency(grandTotal)}
                       </span>
                     </div>
@@ -435,24 +435,24 @@ export const PurchasePlanModal: React.FC<PurchasePlanModalProps> = ({
                 </div>
 
                 {/* Left Bottom Policy Stamp */}
-                <div className="mt-4 pt-3 border-t border-slate-200/70 text-[11px] text-slate-500 space-y-1">
+                <div className="mt-5 pt-3 border-t border-slate-200/60 text-[11px] text-slate-500 space-y-1">
                   <div className="flex items-center gap-1.5">
                     <Lock className="w-3 h-3 text-slate-400" />
-                    <span>Next recurring charge automatically scheduled for {plan.billing_frequency} renewal.</span>
+                    <span>Next recurring charge scheduled for {plan.billing_frequency} renewal.</span>
                   </div>
-                  <div>Pause or cancel anytime in your customer self-service billing portal.</div>
+                  <div>Manage or cancel anytime in your billing portal.</div>
                 </div>
               </div>
 
               {/* RIGHT PANE: Multiple Payment Windows (7 cols) */}
-              <div className="lg:col-span-7 p-6 flex flex-col justify-between">
+              <div className="lg:col-span-7 p-7 flex flex-col justify-between">
                 <div>
                   {/* Payment Methods Nav (Segmented Tabs) */}
-                  <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl mb-5">
+                  <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl mb-6">
                     <button
                       type="button"
                       onClick={() => setActiveTab('upi_qr')}
-                      className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                      className={`flex-1 py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                         activeTab === 'upi_qr'
                           ? 'bg-white text-indigo-700 shadow-xs'
                           : 'text-slate-600 hover:text-slate-900'
@@ -820,11 +820,11 @@ export const PurchasePlanModal: React.FC<PurchasePlanModalProps> = ({
                 </div>
 
                 {/* Bottom Checkout Action */}
-                <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between gap-3">
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                    className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -833,7 +833,7 @@ export const PurchasePlanModal: React.FC<PurchasePlanModalProps> = ({
                     type="button"
                     onClick={handleProcessPurchase}
                     disabled={isProcessing}
-                    className="flex-1 max-w-xs py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs shadow-md shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                    className="flex-1 max-w-xs py-3 px-6 bg-slate-950 hover:bg-slate-800 text-white font-bold rounded-full text-xs shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                   >
                     {isProcessing ? (
                       <>

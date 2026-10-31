@@ -21,24 +21,25 @@ export const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
       <div
-        className={`relative w-full ${maxWidth} bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-8`}
+        className={`relative w-full ${maxWidth} bg-white rounded-[28px] border border-slate-100 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-8`}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <div className="flex items-center justify-between px-7 py-5 border-b border-slate-100 bg-[#faf9fd]">
           <div>
-            <h3 className="text-base font-semibold text-slate-900">{title}</h3>
-            {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+            <h3 className="text-lg font-bold text-slate-900 tracking-tight">{title}</h3>
+            {subtitle && <p className="text-xs text-slate-500 font-medium mt-0.5">{subtitle}</p>}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200/80 text-slate-500 hover:text-slate-800 transition-colors flex items-center justify-center cursor-pointer shrink-0"
+            aria-label="Close modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="p-6 max-h-[80vh] overflow-y-auto">{children}</div>
+        <div className="p-7 max-h-[82vh] overflow-y-auto">{children}</div>
       </div>
     </div>
   );
