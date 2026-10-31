@@ -25,9 +25,6 @@ export const PortalSubscriptionsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSub, setSelectedSub] = useState<any | null>(null);
   const [actionMsg, setActionMsg] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [subToCancel, setSubToCancel] = useState<Subscription | null>(null);
-  const [isSubmittingAction, setIsSubmittingAction] = useState(false);
 
   // Plans catalog modal & purchase modal
   const [showCatalogModal, setShowCatalogModal] = useState(false);
@@ -37,9 +34,8 @@ export const PortalSubscriptionsPage: React.FC = () => {
     try {
       const data = await apiRequest<Subscription[]>('/portal/subscriptions');
       setSubscriptions(data || []);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setActionError(err.message || 'Failed to fetch subscriptions.');
     } finally {
       setLoading(false);
     }
@@ -64,20 +60,18 @@ export const PortalSubscriptionsPage: React.FC = () => {
       const data = await apiRequest(`/portal/subscriptions/${id}`);
       setSelectedSub(data);
     } catch (err: any) {
-      setActionError(err.message || 'Failed to open subscription details.');
+      alert(err.message);
     }
   };
 
   const handleAction = async (id: string, action: 'pause' | 'resume' | 'cancel') => {
-    setActionError(null);
     try {
       const res = await apiRequest(`/portal/subscriptions/${id}/${action}`, { method: 'POST' });
       setActionMsg(res.message);
       await fetchSubscriptions();
       if (selectedSub) openSubDetail(id);
     } catch (err: any) {
-      setActionError(`Action could not be completed: ${err.message}`);
-      throw err;
+      alert(`Action could not be completed: ${err.message}`);
     }
   };
 
@@ -107,16 +101,7 @@ export const PortalSubscriptionsPage: React.FC = () => {
       {actionMsg && (
         <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200/80 text-xs text-emerald-800 font-medium flex items-center justify-between animate-in fade-in">
           <span>{actionMsg}</span>
-          <button onClick={() => setActionMsg(null)} className="text-emerald-700 font-semibold hover:underline cursor-pointer">
-            Dismiss
-          </button>
-        </div>
-      )}
-
-      {actionError && (
-        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200/80 text-xs text-rose-800 font-medium flex items-center justify-between animate-in fade-in">
-          <span>{actionError}</span>
-          <button onClick={() => setActionError(null)} className="text-rose-700 font-semibold hover:underline cursor-pointer">
+          <button onClick={() => setActionMsg(null)} className="text-emerald-700 font-semibold hover:underline">
             Dismiss
           </button>
         </div>
@@ -202,9 +187,13 @@ export const PortalSubscriptionsPage: React.FC = () => {
                   </button>
                 )}
 
-                {(sub.status === 'active' || sub.status === 'paused') && Boolean(sub.early_closure_permitted) && (
+                {sub.status === 'active' && sub.early_closure_permitted && (
                   <button
-                    onClick={() => setSubToCancel(sub)}
+                    onClick={() => {
+                      if (confirm('Are you sure you want to cancel this subscription?')) {
+                        handleAction(sub.id, 'cancel');
+                      }
+                    }}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-transparent hover:border-rose-200 bg-transparent text-slate-500 hover:text-rose-600 hover:bg-rose-50/60 text-xs font-semibold transition-colors cursor-pointer"
                   >
                     <Ban className="w-3 h-3" />
@@ -324,67 +313,6 @@ export const PortalSubscriptionsPage: React.FC = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {/* CANCELLATION CONFIRMATION MODAL */}
-      {subToCancel && (
-        <Modal
-          isOpen={!!subToCancel}
-          onClose={() => {
-            if (!isSubmittingAction) setSubToCancel(null);
-          }}
-          title="Cancel Subscription"
-          subtitle={`Plan: ${subToCancel.plan_name} (${subToCancel.subscription_number})`}
-          maxWidth="max-w-md"
-        >
-          <div className="space-y-4 pt-1">
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Are you sure you want to cancel your subscription for{' '}
-              <strong className="text-slate-900 font-semibold">{subToCancel.plan_name}</strong> (
-              <span className="font-mono text-slate-800">{subToCancel.subscription_number}</span>)?
-              This will immediately cancel your recurring subscription and cease upcoming billing cycles.
-            </p>
-
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setSubToCancel(null)}
-                disabled={isSubmittingAction}
-                className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer disabled:opacity-50"
-              >
-                Keep Subscription
-              </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  setIsSubmittingAction(true);
-                  try {
-                    await handleAction(subToCancel.id, 'cancel');
-                    setSubToCancel(null);
-                  } catch {
-                    // Action error is already captured and set in handleAction
-                  } finally {
-                    setIsSubmittingAction(false);
-                  }
-                }}
-                disabled={isSubmittingAction}
-                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
-              >
-                {isSubmittingAction ? (
-                  <>
-                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Cancelling...</span>
-                  </>
-                ) : (
-                  <>
-                    <Ban className="w-3.5 h-3.5" />
-                    <span>Confirm Cancellation</span>
-                  </>
-                )}
-              </button>
             </div>
           </div>
         </Modal>
