@@ -95,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onSearch, onNavigate }) => {
   const displayRole = role === 'ADMIN' ? 'Administrator' : role === 'STAFF' ? 'Staff' : 'Customer';
 
   return (
-    <header className="flex items-center justify-between pb-6 mb-2">
+    <header className="flex items-center justify-between w-full">
       {/* Search Input matching exact Reference UI */}
       <div ref={searchContainerRef} className="relative w-72 sm:w-96">
         <div className="relative flex items-center">
