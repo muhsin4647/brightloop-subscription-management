@@ -87,12 +87,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
       </div>
 
       <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-        <div className="text-[11px] text-slate-500 font-medium flex items-center justify-between">
-          <span>Brightloop Engine</span>
-          <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Live DB Active
-          </span>
+        <div className="text-[11px] text-slate-500 flex items-center justify-between">
+          <span>Brightloop Core</span>
+          <span className="font-mono text-[10px] text-slate-400">v2.4 Production</span>
         </div>
       </div>
     </aside>

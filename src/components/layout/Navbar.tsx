@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth, DEMO_PERSONAS } from '../../context/AuthContext.tsx';
-import { Bell, UserCheck, LogOut, ChevronDown, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext.tsx';
+import { Bell, LogOut, CheckCircle2, AlertCircle, Building2 } from 'lucide-react';
 import { apiRequest } from '../../lib/api.ts';
 import { AppNotification } from '../../types/index.ts';
 
 export const Navbar: React.FC = () => {
-  const { user, role, logout, switchDemoPersona } = useAuth();
-  const [showPersonaMenu, setShowPersonaMenu] = useState(false);
+  const { user, role, logout } = useAuth();
   const [showNotifs, setShowNotifs] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
@@ -43,60 +42,8 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Right Controls: Demo Persona Switcher & User Profile */}
+      {/* Right Controls: User Profile & Actions */}
       <div className="flex items-center gap-3">
-        {/* Quick Demo Persona Switcher Button */}
-        <div className="relative">
-          <button
-            onClick={() => setShowPersonaMenu(!showPersonaMenu)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50/70 text-indigo-700 text-xs font-medium hover:bg-indigo-100 transition-colors shadow-2xs"
-            title="Switch demo persona for testing"
-          >
-            <UserCheck className="w-4 h-4 text-indigo-600" />
-            <span className="hidden md:inline">Demo Persona:</span>
-            <span className="font-bold">{user?.name?.split(' ')[0] || 'Select'}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-indigo-500" />
-          </button>
-
-          {showPersonaMenu && (
-            <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl border border-slate-200 shadow-xl py-2 z-50">
-              <div className="px-3 py-1.5 border-b border-slate-100 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                Select Test Persona
-              </div>
-              {DEMO_PERSONAS.map((p) => {
-                const isActive = user?.email === p.email;
-                return (
-                  <button
-                    key={p.email}
-                    onClick={() => {
-                      switchDemoPersona(p.email);
-                      setShowPersonaMenu(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 text-xs hover:bg-slate-50 flex items-start gap-2.5 transition-colors ${
-                      isActive ? 'bg-indigo-50/50 text-indigo-900 font-medium' : 'text-slate-700'
-                    }`}
-                  >
-                    <span
-                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded mt-0.5 ${
-                        p.role === 'ADMIN'
-                          ? 'bg-purple-100 text-purple-700'
-                          : p.role === 'STAFF'
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-emerald-100 text-emerald-700'
-                      }`}
-                    >
-                      {p.role}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-slate-900 truncate">{p.name}</div>
-                      <div className="text-[11px] text-slate-500 truncate">{p.description}</div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
 
         {/* Notifications Popover */}
         <div className="relative">
