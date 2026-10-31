@@ -43,9 +43,11 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
   return response.json();
 }
 
-export function formatCurrency(amount: number, currency: string = 'INR'): string {
-  const symbol = currency === 'INR' ? '₹' : '$';
-  return `${symbol}${Number(amount || 0).toLocaleString('en-IN', {
+export function formatCurrency(amount: number, currency: string = 'USD'): string {
+  const isINR = currency === 'INR';
+  const symbol = isINR ? '₹' : '$';
+  const locale = isINR ? 'en-IN' : 'en-US';
+  return `${symbol}${Number(amount || 0).toLocaleString(locale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;

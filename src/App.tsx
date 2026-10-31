@@ -78,15 +78,15 @@ function MainRouter() {
 
   // Render main application shell
   return (
-    <div className="min-h-screen bg-[#f4f3fb] flex font-sans text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
-      {/* Soft-Lavender Sidebar */}
+    <div className="min-h-screen bg-[#f8f9fb] flex font-sans text-slate-900 antialiased selection:bg-[#6342e8] selection:text-white">
+      {/* Fixed Sidebar matching reference UI */}
       <Sidebar currentPath={currentPath} onNavigate={navigate} />
 
-      {/* Main Container: Crisp white card with rounded-28px */}
-      <div className="flex-1 p-3 sm:p-5 flex flex-col min-w-0 min-h-screen">
-        <main className="flex-1 bg-white rounded-[28px] border border-slate-200/60 shadow-sm p-6 sm:p-8 flex flex-col overflow-y-auto">
-          {/* Integrated Top Bar with Search & Profile */}
-          <Navbar />
+      {/* Main Content Area offset by fixed sidebar width */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto pl-72">
+        <div className="flex-1 p-6 sm:p-8 flex flex-col w-full">
+          {/* Integrated Top Bar with Search, Shortcut & Profile */}
+          <Navbar onNavigate={navigate} />
 
           {/* Operations & Admin Routes */}
           {role !== 'CUSTOMER' && (
@@ -117,7 +117,7 @@ function MainRouter() {
               {currentPath === '/portal/profile' && <PortalProfilePage />}
             </div>
           )}
-        </main>
+        </div>
       </div>
     </div>
   );

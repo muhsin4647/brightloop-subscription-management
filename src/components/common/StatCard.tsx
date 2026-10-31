@@ -1,10 +1,13 @@
 import React, { ReactNode } from 'react';
+import { ArrowUpRight, ArrowDownRight, MoreHorizontal } from 'lucide-react';
 
 interface StatCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
   icon?: ReactNode;
+  iconBg?: string;
+  iconColor?: string;
   trend?: string;
   trendUp?: boolean;
   highlight?: boolean;
@@ -16,43 +19,54 @@ export const StatCard: React.FC<StatCardProps> = ({
   value,
   subtitle,
   icon,
+  iconBg = 'bg-[#f0ebff]',
+  iconColor = 'text-[#6342e8]',
   trend,
-  trendUp,
+  trendUp = true,
   highlight,
   onClick,
 }) => {
   return (
     <div
       onClick={onClick}
-      className={`p-5 rounded-2xl border bg-white transition-all shadow-[0_1px_3px_rgba(0,0,0,0.04)] ${
+      className={`p-5 rounded-2xl bg-white border border-slate-100 shadow-xs transition-all ${
         highlight
-          ? 'border-indigo-300 ring-1 ring-indigo-500/10'
-          : 'border-slate-200/90 hover:border-slate-300'
-      } ${onClick ? 'cursor-pointer hover:shadow-md hover:-translate-y-0.5' : ''}`}
+          ? 'ring-2 ring-[#6342e8]/20 border-[#6342e8]/40'
+          : 'hover:shadow-md'
+      } ${onClick ? 'cursor-pointer' : ''}`}
     >
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{title}</span>
-        {icon && (
-          <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 text-slate-600">
+      <div className="flex items-center justify-between">
+        {icon ? (
+          <div className={`w-8 h-8 rounded-lg ${iconBg} ${iconColor} flex items-center justify-center`}>
             {icon}
           </div>
+        ) : (
+          <div className="w-8 h-8 rounded-lg bg-[#f0ebff] text-[#6342e8] flex items-center justify-center font-bold text-xs">
+            BL
+          </div>
         )}
+        <button className="text-slate-300 hover:text-slate-600 p-1">
+          <MoreHorizontal className="w-4 h-4" />
+        </button>
       </div>
 
-      <div className="flex items-baseline gap-2">
-        <div className="text-2xl font-extrabold tracking-tight text-slate-900 font-mono tabular-nums">{value}</div>
+      <div className="mt-4">
+        <div className="text-xs font-medium text-slate-500">{title}</div>
+        <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
+          {value}
+        </div>
+
         {trend && (
-          <span
-            className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
-              trendUp ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
-            }`}
-          >
-            {trend}
-          </span>
+          <div className={`flex items-center gap-1 text-xs font-semibold mt-2 ${trendUp ? 'text-emerald-600' : 'text-rose-600'}`}>
+            {trendUp ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
+            <span>{trend}</span>
+          </div>
+        )}
+
+        {subtitle && !trend && (
+          <p className="mt-2 text-xs text-slate-500 leading-relaxed">{subtitle}</p>
         )}
       </div>
-
-      {subtitle && <p className="mt-1.5 text-xs text-slate-500 leading-relaxed">{subtitle}</p>}
     </div>
   );
 };
