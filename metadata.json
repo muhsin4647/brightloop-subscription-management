@@ -1,0 +1,6 @@
+{
+  "name": "Brightloop - Subscription Management & Recurring Billing Platform",
+  "description": "Production-grade subscription lifecycle, recurring billing engine, quotation conversion, automated invoice generation, tax & discount management, and financial reporting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

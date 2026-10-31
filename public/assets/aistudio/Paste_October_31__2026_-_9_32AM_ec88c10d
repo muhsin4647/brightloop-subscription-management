@@ -1,0 +1,2454 @@
+# PROJECT MASTER PROMPT
+## Brightloop — Subscription Management & Recurring Billing Platform
+
+### 1. YOUR ROLE
+
+Act as a senior full-stack software engineer, system architect, database designer, UI/UX designer, security engineer, and QA engineer.
+
+Build a complete, professional, production-oriented **Subscription Management System** for Brightloop Software. The system must manage the entire lifecycle of a subscription-based business, including customer accounts, products, variants, subscription plans, quotations, subscriptions, recurring invoices, taxes, discounts, payments, overdue tracking, and revenue reporting.
+
+This is a functional business application, not just a dashboard prototype.
+
+Every major feature must work end to end, with a persistent database, secure authorization, server-side validation, meaningful business logic, proper error handling, and a polished user interface.
+
+### Primary objective
+
+Replace Brightloop's spreadsheet-based subscription tracking, manually prepared invoices, unstructured payment reconciliation, and manually calculated revenue reports with one unified application.
+
+The finished application must enable:
+
+- Administrators to configure and control the entire subscription business.
+- Internal staff to manage customers, quotations, subscriptions, invoices, and payments within their permissions.
+- Customers to register, subscribe to plans, view their subscriptions, access invoices, and manage eligible subscription actions through a self-service portal.
+- Finance personnel to understand recurring revenue, payments received, outstanding balances, and overdue invoices.
+- The system to generate recurring invoices reliably without duplicating or skipping billing events.
+
+**Most important requirement:** Implement the actual business workflows described in this prompt. Do not create buttons that merely look functional, fake successful operations, or use hardcoded dashboard numbers as a substitute for real database queries.
+
+---
+
+# 2. PROJECT BACKGROUND
+
+## Company
+
+Brightloop Software sells subscription-based software products to small businesses and large enterprises.
+
+Its offerings include:
+
+- Monthly and yearly software subscriptions.
+- Products with different variants, such as brand-based options.
+- Optional add-ons that customers can activate or deactivate.
+- Discounts for eligible customers.
+- Configurable tax rules.
+- Quotations for prospective customers.
+- Recurring invoices and payment collection.
+- Enterprise subscriptions with longer contracts.
+
+The application will serve three primary user groups:
+
+**Administrator**
+- Complete system control.
+- Configuration of products, plans, taxes, discounts, and quotation templates.
+- Staff account management.
+- Access to all business reports and records.
+
+**Internal Staff**
+- Day-to-day customer and subscription operations.
+- Quotation preparation.
+- Invoice management.
+- Payment recording.
+- Access restricted by role and permissions.
+
+**Customer**
+- Secure access to their own account.
+- Subscription and invoice visibility.
+- Self-service subscription management.
+- Access to payment history and account information.
+
+## Current problems
+
+The existing business processes suffer from:
+
+1. Subscription information scattered across spreadsheets.
+2. Missed renewals and expiry dates.
+3. Manual invoice preparation.
+4. Incorrect invoice totals and tax calculations.
+5. Payments that are difficult to match to invoices.
+6. Discounts that are forgotten or applied incorrectly.
+7. No reliable view of overdue invoices.
+8. No centralized recurring revenue reporting.
+9. Poor visibility into subscription lifecycle status.
+10. Increasing operational delays as subscription volume grows.
+
+Build the application to solve these problems directly.
+
+---
+
+# 3. TECHNOLOGY STACK AND ARCHITECTURE
+
+First, inspect the existing repository and identify the framework, project structure, package manager, database, environment configuration, and implemented features.
+
+If an existing frontend is present, preserve its framework, styling system, components, routing, and working functionality wherever possible. Extend it instead of rebuilding it unnecessarily.
+
+If this is a new project, use the following recommended stack.
+
+### Frontend
+
+- React.
+- TypeScript.
+- Vite.
+- Tailwind CSS.
+- shadcn/ui or an equivalent accessible component system.
+- React Router.
+- TanStack Query for server-state management.
+- React Hook Form for forms.
+- Zod for form validation.
+- Recharts for dashboards and analytics.
+- Lucide React for icons.
+
+### Backend
+
+- Node.js.
+- Express.js.
+- TypeScript.
+- REST API architecture.
+- Zod for request validation.
+- Prisma ORM.
+
+### Database
+
+- PostgreSQL.
+- Proper relational database design.
+- Foreign key constraints.
+- Database indexes.
+- Transactions for financial operations.
+- Decimal database types for monetary values.
+
+### Authentication and security
+
+- Secure password hashing using Argon2id or bcrypt.
+- Server-managed sessions or appropriately implemented access and refresh tokens.
+- Secure, HTTP-only cookies when using cookie-based authentication.
+- Email-based password reset.
+- Role-based and resource-level authorization.
+
+### Supporting services
+
+Use a modular architecture that can integrate with:
+
+- An SMTP-compatible email provider.
+- A background job queue or durable scheduled-job mechanism.
+- A payment gateway such as Razorpay or Stripe, if credentials and environment access are available.
+- PDF generation for invoices and quotations.
+- Automated tests.
+- Docker-based deployment, if practical.
+
+### Architecture requirements
+
+Organize the application into clearly separated modules:
+
+1. Authentication and authorization.
+2. User and staff management.
+3. Customer management.
+4. Product catalog.
+5. Product variants.
+6. Subscription plans.
+7. Quotation templates.
+8. Quotations.
+9. Subscription management.
+10. Recurring billing.
+11. Tax management.
+12. Discount management.
+13. Invoice management.
+14. Payment management.
+15. Notification management.
+16. Reporting and analytics.
+17. Audit logging.
+18. Background jobs.
+
+Keep business logic out of UI components and avoid placing all backend functionality in a single controller or file.
+
+Use a service-oriented backend structure with dedicated controllers, services, repositories where appropriate, validation schemas, middleware, and database models.
+
+Do not introduce microservices unless they solve a genuine requirement. A well-structured modular monolith is the preferred architecture for this project.
+
+---
+
+# 4. USER ROLES AND ACCESS CONTROL
+
+Implement three main roles:
+
+- `ADMIN`
+- `STAFF`
+- `CUSTOMER`
+
+Enforce all permissions on the backend. Hiding a button in the frontend is not sufficient authorization.
+
+## 4.1 Administrator permissions
+
+The administrator can:
+
+- View and manage all customers.
+- Create, edit, archive, and manage products.
+- Create and manage product variants.
+- Configure subscription plans.
+- Configure taxes.
+- Create, update, activate, and deactivate discount rules.
+- Manage quotation templates.
+- Create and manage quotations.
+- Create and manage subscriptions.
+- Pause, resume, renew, or close subscriptions when permitted.
+- Generate, confirm, cancel, send, and print invoices according to business rules.
+- Record and review payments.
+- View financial reports.
+- Create staff accounts.
+- Assign staff roles and permissions.
+- View audit logs.
+- Configure system settings.
+
+Only the administrator may create staff accounts.
+
+## 4.2 Staff permissions
+
+Internal staff can:
+
+- View customers and manage customer records within their permissions.
+- Create quotations using approved templates.
+- Prepare and manage quotations.
+- Create or manage subscriptions according to assigned permissions.
+- View subscription status and renewal dates.
+- Generate and review invoices.
+- Send invoice notifications.
+- Record payments.
+- View payment history.
+- Track outstanding and overdue invoices.
+- Access operational dashboards.
+
+Staff cannot:
+
+- Create administrator accounts.
+- Create staff accounts unless explicitly authorized by a separate permission policy.
+- Change protected administrative settings.
+- Create or modify tax rules.
+- Create or modify discount rules.
+- Access restricted financial configuration.
+- Bypass authorization through direct API requests.
+
+## 4.3 Customer permissions
+
+Customers can:
+
+- View and update permitted profile information.
+- View their own subscriptions.
+- View their own subscription plans and product lines.
+- View their subscription status and renewal dates.
+- Request eligible plan changes.
+- Pause, resume, cancel, or renew subscriptions only when the applicable plan and subscription policies permit those actions.
+- View their own invoices.
+- Download their own invoice PDFs.
+- View their own payments and payment history.
+- View outstanding balances.
+- Access payment instructions or a configured payment gateway.
+- Request password resets.
+
+Customers must never be able to access another customer's subscriptions, invoices, payments, or personal information.
+
+Enforce tenant ownership at the API and database-query levels wherever applicable.
+
+---
+
+# 5. AUTHENTICATION AND ACCOUNT MANAGEMENT
+
+Implement a complete authentication workflow.
+
+## 5.1 Registration
+
+Create a registration page with:
+
+- Full name.
+- Email address.
+- Password.
+- Confirm password.
+- Terms acceptance where appropriate.
+
+Validation requirements:
+
+1. Email addresses must be valid and normalized.
+2. Each normalized email address can belong to only one account.
+3. Passwords must contain more than eight characters, meaning at least nine characters.
+4. Passwords must contain at least one uppercase letter.
+5. Passwords must contain at least one lowercase letter.
+6. Passwords must contain at least one special character.
+7. Passwords must be stored only as secure password hashes.
+8. Duplicate registration attempts must return useful validation errors.
+9. Customer registration must never allow the user to select an administrator or staff role.
+
+Create new public registrations with the `CUSTOMER` role.
+
+## 5.2 Login
+
+Provide:
+
+- Email and password authentication.
+- Password visibility toggle.
+- Form validation.
+- Invalid-credentials feedback.
+- Loading indicators.
+- Secure session handling.
+- Logout functionality.
+- Protected routes.
+- Role-aware navigation.
+
+## 5.3 Password reset
+
+Implement:
+
+1. A forgot-password page.
+2. Email submission.
+3. Secure, cryptographically random, single-use reset tokens.
+4. Expiration of reset tokens.
+5. Email delivery of the reset link when email configuration is available.
+6. Password reset confirmation.
+7. Invalidation of the token after use.
+8. Appropriate invalidation of existing sessions when required.
+
+Avoid revealing whether an email address is registered.
+
+If SMTP is not configured, provide a development-only email preview or a clearly documented local testing mechanism. Never claim an email was delivered when it was not.
+
+## 5.4 Staff creation
+
+Only administrators can create staff accounts.
+
+The administrator should be able to:
+
+- Enter the staff member's name and email.
+- Assign permitted roles or permissions.
+- Send an invitation or temporary account setup link.
+- Activate or deactivate the account.
+- Review the account's creation date and status.
+
+Public registration must never grant staff privileges.
+
+---
+
+# 6. PRODUCT CATALOG AND VARIANTS
+
+Build a product management module.
+
+## 6.1 Product fields
+
+Each product should contain:
+
+- Unique product ID.
+- Product name.
+- Internal product code or SKU.
+- Description.
+- Product type.
+- Base sales price.
+- Cost price.
+- Currency.
+- Internal notes.
+- Status.
+- Created date.
+- Updated date.
+- Created-by user.
+
+Support appropriate product types, such as:
+
+- Software.
+- Service.
+- Add-on.
+- Other configurable product categories.
+
+Allow administrators to create, edit, view, and archive products.
+
+Archived products must remain available in historical invoices and subscription records.
+
+## 6.2 Product variants
+
+Support products with configurable variants.
+
+Example:
+
+Product: Business Management Software
+
+Base sales price: ₹2,000.
+
+Variant attribute: Brand.
+
+Options:
+
+- Standard: ₹0 additional charge.
+- Odoo: ₹560 additional charge.
+- Premium: ₹1,000 additional charge.
+
+For a quantity of two Odoo variants:
+
+- Base price per unit: ₹2,000.
+- Variant adjustment per unit: ₹560.
+- Effective unit price: ₹2,560.
+- Quantity: 2.
+- Line subtotal: ₹5,120 before applicable discounts and taxes.
+
+The variant price adjustment must be configurable by the administrator.
+
+Support multiple variant attributes where practical.
+
+For example:
+
+- Brand.
+- Edition.
+- Package.
+- License type.
+
+Store the selected variant and its price adjustment in the corresponding subscription line.
+
+**Important:** When a product price or variant price changes later, existing subscriptions and historical invoices must not silently change. Store the applicable price snapshot on each commercial transaction.
+
+---
+
+# 7. SUBSCRIPTION PLAN MANAGEMENT
+
+Create a dedicated subscription-plan module.
+
+Each plan should contain:
+
+- Plan ID.
+- Plan name.
+- Plan code.
+- Associated product or products.
+- Description.
+- Billing frequency.
+- Plan price.
+- Minimum quantity.
+- Currency.
+- Available-from date.
+- Available-until date.
+- Whether automatic closure is enabled.
+- Whether early closure is permitted.
+- Whether pausing is permitted.
+- Whether renewal is permitted.
+- Whether quantity changes are permitted.
+- Whether add-ons are permitted.
+- Trial configuration, if supported.
+- Plan status.
+- Created-by user.
+- Created and updated timestamps.
+
+## 7.1 Billing frequencies
+
+Support:
+
+- Daily.
+- Weekly.
+- Monthly.
+- Yearly.
+
+Implement billing dates using consistent calendar-based rules.
+
+Examples:
+
+- Monthly subscriptions renew on their monthly billing anchor.
+- Yearly subscriptions renew on their yearly billing anchor.
+- Weekly subscriptions renew at seven-day intervals.
+- Daily subscriptions renew at one-day intervals.
+
+Define consistent handling for end-of-month dates, leap years, and time zones.
+
+For example, a monthly subscription that starts on January 31 must use a documented and consistent rule for subsequent months.
+
+Store billing timestamps in UTC and calculate billing dates according to the configured business time zone.
+
+## 7.2 Plan lifecycle
+
+Support the following operational states:
+
+- Draft.
+- Active.
+- Inactive.
+- Archived.
+
+A plan's availability must be enforced when creating a new subscription.
+
+Do not allow a customer to purchase a plan before its availability date or after its configured end date.
+
+Existing subscriptions must retain their historical terms unless a valid subscription-change workflow explicitly updates them.
+
+## 7.3 Subscription policy enforcement
+
+The plan's policy settings must control the available subscription actions.
+
+For example:
+
+- If pausing is disabled, the pause operation must be rejected.
+- If early closure is disabled, early cancellation must be rejected.
+- If renewal is disabled, manual renewal must be rejected.
+- If automatic closure is enabled, the subscription must close according to its configured expiry policy.
+
+These rules must be enforced server-side.
+
+---
+
+# 8. QUOTATION TEMPLATES AND QUOTATIONS
+
+Build a quotation module for sales operations.
+
+## 8.1 Quotation templates
+
+Administrators and appropriately authorized staff should be able to use approved quotation templates.
+
+A template should contain:
+
+- Template name.
+- Description.
+- Default products.
+- Default subscription plan.
+- Default quantities.
+- Default payment terms.
+- Default tax configuration where appropriate.
+- Validity duration in days.
+- Default notes and terms.
+- Active or inactive status.
+
+Templates should accelerate quotation creation without locking users into fixed customer details.
+
+## 8.2 Create a quotation
+
+A sales representative should be able to:
+
+1. Select a quotation template.
+2. Select an existing customer or create a customer record if authorized.
+3. Choose a subscription plan.
+4. Add products and variants.
+5. Enter quantities.
+6. Review unit prices.
+7. Apply eligible discount rules.
+8. Review taxes.
+9. Calculate the total.
+10. Set payment terms.
+11. Generate the quotation.
+
+Each quotation must have a unique quotation number.
+
+Store:
+
+- Customer.
+- Creation date.
+- Expiry date.
+- Validity duration.
+- Product lines.
+- Quantity.
+- Unit price.
+- Discounts.
+- Tax amounts.
+- Subtotal.
+- Grand total.
+- Notes.
+- Terms.
+- Created-by user.
+
+The expiry date should be calculated from the quotation's issue date and configured validity duration.
+
+## 8.3 Quotation lifecycle
+
+Support these states:
+
+- Draft.
+- Sent.
+- Accepted.
+- Rejected.
+- Expired.
+- Cancelled.
+
+An accepted quotation can be converted into a subscription.
+
+The conversion must preserve the agreed commercial terms, product lines, quantities, applicable discounts, tax treatment, and payment terms.
+
+Do not permit the same quotation to create multiple subscriptions unless an explicit split or partial-conversion feature is implemented.
+
+Generate a clear audit record for quotation acceptance and conversion.
+
+---
+
+# 9. SUBSCRIPTION MANAGEMENT
+
+Build the central subscription module.
+
+## 9.1 Create a subscription
+
+Subscriptions may originate from:
+
+- An accepted quotation.
+- An authorized staff member creating a subscription directly.
+- A customer self-service checkout, if implemented.
+
+Each subscription must contain:
+
+- Unique subscription number.
+- Customer.
+- Associated plan.
+- Start date.
+- Expiry or end date, when applicable.
+- Next billing date.
+- Billing frequency.
+- Payment terms.
+- Currency.
+- Subscription lines.
+- Quantities.
+- Unit prices.
+- Variant adjustments.
+- Discount details.
+- Tax details.
+- Subtotal.
+- Total.
+- Current status.
+- Created-by user.
+- Creation timestamp.
+
+A subscription line should preserve its own product, selected variant, quantity, unit price, discount allocation, tax details, and amount.
+
+## 9.2 Subscription lifecycle
+
+Implement the business lifecycle:
+
+`Draft → Quotation → Confirmed → Active → Closed`
+
+Also support:
+
+- Paused.
+- Cancelled.
+- Expired.
+
+These states should be modeled with explicit transition rules rather than arbitrary status updates.
+
+Suggested transition rules:
+
+| Current state | Action | Result |
+|---|---|---|
+| Draft | Send quotation | Quotation |
+| Quotation | Confirm accepted terms | Confirmed |
+| Confirmed | Activate subscription | Active |
+| Active | Pause, when permitted | Paused |
+| Paused | Resume | Active |
+| Active | Close under applicable policy | Closed |
+| Active | Reach configured expiry | Expired or Closed |
+| Active | Cancel, when permitted | Cancelled |
+
+Implement the precise business transitions consistently, including any necessary intermediate confirmation.
+
+For example, a subscription may become active immediately upon confirmation if the business policy permits it. Otherwise, activation can depend on its start date or an explicit activation action.
+
+Display the current status clearly on subscription lists and detail pages.
+
+## 9.3 Subscription details page
+
+Display:
+
+- Subscription number.
+- Customer information.
+- Plan details.
+- Subscription lines.
+- Billing frequency.
+- Start and end dates.
+- Next billing date.
+- Payment terms.
+- Current status.
+- Invoice history.
+- Payment history.
+- Discount details.
+- Tax details.
+- Activity history.
+
+Provide contextual actions based on the current state and applicable plan policies.
+
+## 9.4 Subscription changes
+
+Implement safe handling for:
+
+- Plan changes.
+- Quantity changes.
+- Add-on activation and deactivation.
+- Renewal.
+- Pause and resume.
+- Cancellation.
+- Closure.
+
+For changes that affect price, define when the new price becomes effective and whether proration is supported.
+
+If proration is implemented, calculate and display the adjustment explicitly.
+
+If proration is not implemented, schedule changes for the next billing period where appropriate.
+
+Never silently rewrite already-issued invoices or historical payment records.
+
+---
+
+# 10. AUTOMATED RECURRING BILLING
+
+This is one of the most important modules.
+
+Build a reliable billing engine that automatically creates invoices for subscriptions when they become due.
+
+## 10.1 Billing scheduler
+
+Implement a scheduled billing job that:
+
+1. Finds subscriptions eligible for billing.
+2. Identifies subscriptions whose billing dates are due.
+3. Checks their current status.
+4. Checks plan availability and applicable subscription policies.
+5. Calculates the billing period.
+6. Determines applicable product prices.
+7. Applies eligible discounts.
+8. Calculates taxes.
+9. Calculates invoice totals.
+10. Creates the invoice and its lines.
+11. Updates the subscription's next billing date.
+12. Records the billing event.
+13. Creates any required notification jobs.
+14. Logs failures and allows safe retries.
+
+The billing scheduler must run independently of whether an administrator is currently logged in.
+
+Do not rely on someone opening the dashboard to trigger billing.
+
+## 10.2 Duplicate prevention
+
+Hundreds of subscriptions may become due simultaneously.
+
+Prevent duplicate invoices using:
+
+- Database transactions.
+- Unique billing-period constraints.
+- Idempotency keys or equivalent billing-event identifiers.
+- Safe job retries.
+- Concurrency-safe processing.
+- Appropriate database locking or atomic operations.
+
+A subscription should not receive two invoices for the same billing period because a scheduled job ran twice.
+
+If invoice creation fails, do not advance the subscription's billing date in a way that permanently skips the billing period.
+
+## 10.3 Billing periods
+
+Each recurring invoice must identify the period it covers.
+
+For example:
+
+- Subscription: SUB-2026-0001.
+- Billing period: November 1–30, 2026.
+- Invoice date: November 1, 2026.
+- Next billing date: December 1, 2026.
+
+Use the application's billing-date rules to determine exact boundaries.
+
+Handle paused, cancelled, expired, and closed subscriptions according to their policies.
+
+Avoid generating invoices for periods that should not be billed.
+
+## 10.4 Billing history
+
+Store a billing event for each attempt.
+
+Include:
+
+- Subscription ID.
+- Billing period start.
+- Billing period end.
+- Attempt timestamp.
+- Outcome.
+- Generated invoice ID, if successful.
+- Error details, when applicable.
+- Retry count.
+
+Provide an administrator view of failed billing jobs and a safe retry mechanism.
+
+## 10.5 Reliability
+
+The billing system must be designed for eventual reliable processing.
+
+A failed email should not invalidate a successfully created invoice.
+
+A failed notification should not cause a duplicate invoice.
+
+A billing retry must not charge or invoice a customer twice.
+
+**Payment collection and invoice generation are separate operations.** Creating an invoice must not automatically mark it as paid.
+
+---
+
+# 11. TAX MANAGEMENT
+
+Build an administrator-controlled tax configuration module.
+
+## 11.1 Tax rules
+
+Each tax rule should include:
+
+- Tax name.
+- Tax code.
+- Tax rate.
+- Tax type.
+- Calculation method.
+- Applicability conditions.
+- Optional effective start date.
+- Optional effective end date.
+- Active status.
+- Created-by user.
+
+Support percentage-based taxes.
+
+Where appropriate, allow configurable rules for product categories and customer tax classifications.
+
+## 11.2 Automatic tax calculation
+
+Calculate taxes from configured rules during quotation creation and invoice generation.
+
+For example:
+
+- Product price: ₹1,000.
+- Quantity: 2.
+- Subtotal: ₹2,000.
+- Tax rate: 18%.
+- Tax amount: ₹360.
+- Total: ₹2,360.
+
+This is an illustrative calculation; actual tax treatment must follow the applicable configuration.
+
+Support multiple applicable tax components where required.
+
+Do not apply inactive or out-of-date tax rules.
+
+## 11.3 Tax snapshots
+
+Each issued invoice must preserve the applicable tax rate, tax name, calculation basis, and calculated amount.
+
+Changing a tax rule later must not silently modify existing invoices.
+
+Define whether tax is calculated before or after discounts and apply that rule consistently.
+
+Use decimal arithmetic and a documented rounding policy.
+
+Do not use JavaScript floating-point arithmetic as the authoritative calculation method for financial amounts.
+
+---
+
+# 12. DISCOUNT MANAGEMENT
+
+Only administrators may create or modify discount rules.
+
+## 12.1 Discount configuration
+
+Each discount should include:
+
+- Discount name.
+- Unique discount code, if applicable.
+- Description.
+- Discount type.
+- Fixed amount or percentage.
+- Minimum purchase amount.
+- Minimum quantity.
+- Applicable products.
+- Applicable plans.
+- Whether it applies to individual product lines or an entire subscription.
+- Start date.
+- End date.
+- Maximum total uses.
+- Per-customer usage limit, if configured.
+- Current usage count.
+- Active status.
+
+Support:
+
+- Fixed-amount discounts.
+- Percentage discounts.
+
+## 12.2 Discount eligibility
+
+A discount can be applied only when:
+
+- It is active.
+- The current billing date is within its validity period.
+- The minimum purchase amount is satisfied.
+- The minimum quantity is satisfied.
+- The applicable product or subscription matches.
+- The usage limit has not been reached.
+- The customer has not exceeded any configured usage limit.
+
+## 12.3 Recurring discounts
+
+Support recurring discounts that automatically apply to eligible future invoices.
+
+For example:
+
+A customer receives a 10% discount for eligible subscriptions during a defined promotional period.
+
+The discount should:
+
+- Apply automatically to eligible invoices.
+- Stop after its expiry date.
+- Stop when its usage limit is exhausted.
+- Preserve the original discount details on existing invoices.
+- Never exceed the permitted discount amount.
+- Avoid being counted twice when billing jobs retry.
+
+Track discount usage through durable database records.
+
+When a discount has a limited number of uses, enforce the limit atomically so concurrent billing jobs cannot exceed it.
+
+For percentage discounts, calculate the discount using the applicable line or subscription subtotal according to the configured policy.
+
+For fixed discounts, prevent the discount from reducing the eligible amount below zero.
+
+Display discounts separately on quotations, subscriptions, and invoices.
+
+---
+
+# 13. INVOICE MANAGEMENT
+
+Build a complete invoice module.
+
+## 13.1 Invoice creation
+
+Invoices should be generated from subscriptions automatically.
+
+Authorized staff may also generate invoices through permitted manual workflows.
+
+Each invoice must include:
+
+- Unique invoice number.
+- Customer details.
+- Subscription reference, when applicable.
+- Invoice date.
+- Due date.
+- Billing period.
+- Currency.
+- Product lines.
+- Quantities.
+- Unit prices.
+- Discounts.
+- Taxes.
+- Subtotal.
+- Total.
+- Amount paid.
+- Outstanding amount.
+- Payment terms.
+- Notes.
+- Invoice status.
+
+Customer information and applicable commercial terms should be copied into the invoice as snapshots so historical documents remain consistent.
+
+## 13.2 Invoice lifecycle
+
+Support the required operational lifecycle:
+
+`Draft → Confirmed → Paid`
+
+Also support:
+
+- Sent.
+- Partially Paid.
+- Overdue.
+- Cancelled.
+- Voided, where appropriate.
+
+The system should distinguish between invoice status and payment status when necessary.
+
+For example, an invoice can be confirmed and sent but remain unpaid.
+
+If an invoice receives a partial payment, its outstanding balance must remain accurate.
+
+An invoice must not be marked fully paid until its outstanding amount reaches zero through valid payment allocation.
+
+## 13.3 Invoice actions
+
+Provide authorized users with the ability to:
+
+- Create invoices.
+- Review invoice details.
+- Confirm invoices.
+- Send invoices.
+- Print invoices.
+- Download invoice PDFs.
+- Record payments.
+- Cancel or void invoices according to policy.
+- View invoice activity history.
+
+Prevent invalid operations, such as cancelling an invoice that has already been settled without first following an appropriate correction or refund process.
+
+Use explicit credit-note or adjustment workflows if implemented.
+
+## 13.4 Invoice PDF
+
+Generate a professional invoice document containing:
+
+- Brightloop Software branding.
+- Invoice number.
+- Issue date and due date.
+- Customer information.
+- Subscription reference.
+- Itemized products.
+- Quantity.
+- Unit price.
+- Discounts.
+- Tax breakdown.
+- Subtotal.
+- Grand total.
+- Amount paid.
+- Outstanding amount.
+- Payment instructions.
+- Terms and notes.
+
+The downloaded document must reflect the actual stored invoice data.
+
+Do not generate PDFs using unrelated hardcoded sample content.
+
+---
+
+# 14. PAYMENT MANAGEMENT AND RECONCILIATION
+
+Build a payment management module.
+
+## 14.1 Payment recording
+
+Each payment should include:
+
+- Payment ID.
+- Customer.
+- Invoice.
+- Payment method.
+- Amount.
+- Payment date.
+- Transaction reference, if available.
+- Notes.
+- Payment status.
+- Recorded-by user.
+- Creation timestamp.
+
+Support methods such as:
+
+- Bank transfer.
+- UPI.
+- Cash.
+- Card.
+- Payment gateway.
+- Other.
+
+Use appropriate controls for manual payment entry.
+
+Never store card security codes or raw payment credentials.
+
+## 14.2 Payment allocation
+
+When a payment is recorded:
+
+1. Validate the invoice.
+2. Validate the amount.
+3. Check the invoice's remaining balance.
+4. Create the payment record.
+5. Allocate the payment to the invoice.
+6. Update the outstanding balance.
+7. Update the invoice's payment status.
+8. Record an audit event.
+9. Trigger any appropriate notifications.
+
+Use a database transaction so these operations cannot leave the invoice and payment records inconsistent.
+
+For the initial version, support one invoice per payment. If multi-invoice payment allocation is implemented, use a separate allocation table.
+
+## 14.3 Payment rules
+
+Enforce the following:
+
+- Payment amounts must be positive.
+- Duplicate transaction references should be handled safely.
+- Fully paid invoices must not accept additional allocations beyond their remaining balance.
+- Partial payments must update the balance correctly.
+- Failed payments must not be treated as successful payments.
+- Cancelled or voided invoices must not receive ordinary new payment allocations.
+- Payment corrections must preserve an audit trail.
+- Historical payment records must not be silently deleted.
+
+If overpayments or refunds are supported, implement them as explicit financial operations.
+
+## 14.4 Payment gateway integration
+
+Design the system so a real payment gateway can be integrated.
+
+If gateway credentials are available, implement the chosen provider using its official server-side SDK and webhook verification.
+
+If credentials are unavailable, implement manual payment recording and a clearly identified sandbox or simulated checkout for demonstrations.
+
+Do not represent simulated payments as real money received.
+
+---
+
+# 15. CUSTOMER SELF-SERVICE PORTAL
+
+Create a dedicated customer portal.
+
+The customer interface should be simpler than the internal administrative interface.
+
+## Customer dashboard
+
+Display:
+
+- Welcome message.
+- Active subscriptions.
+- Upcoming renewals.
+- Recent invoices.
+- Outstanding balance.
+- Recent payment history.
+- Important subscription notifications.
+
+## My subscriptions
+
+Allow customers to:
+
+- View all their subscriptions.
+- View individual subscription details.
+- See current status.
+- Review products and variants.
+- Review subscription price.
+- View billing frequency.
+- See next billing date.
+- See contract end date.
+- View associated invoices.
+- Request permitted subscription changes.
+
+## My invoices
+
+Allow customers to:
+
+- View their invoice history.
+- Filter invoices by status.
+- View invoice details.
+- Download invoice PDFs.
+- View due dates.
+- Check outstanding amounts.
+- View payment history.
+
+## My profile
+
+Allow customers to:
+
+- View their account information.
+- Update permitted profile fields.
+- Update their password.
+- Request password resets.
+
+## Security requirement
+
+Every customer API endpoint must verify that the requested resource belongs to the authenticated customer.
+
+Changing an ID in a URL or request body must never allow access to another customer's information.
+
+---
+
+# 16. ADMINISTRATIVE DASHBOARD
+
+Build a polished dashboard for administrators and authorized staff.
+
+The dashboard must use real data from the database.
+
+## Summary cards
+
+Include:
+
+1. Active subscriptions.
+2. Total subscriptions.
+3. Monthly recurring revenue.
+4. Annual recurring revenue.
+5. Revenue collected during the selected period.
+6. Outstanding invoice balance.
+7. Overdue invoice count.
+8. Overdue invoice amount.
+9. Upcoming renewals.
+10. Failed billing attempts.
+
+Do not use a single generic revenue number for all these metrics.
+
+Define each metric precisely and calculate it from the appropriate source records.
+
+## Charts
+
+Include:
+
+- Revenue collected over time.
+- Monthly recurring revenue trend.
+- New subscriptions versus cancelled subscriptions.
+- Invoice status distribution.
+- Payment method distribution.
+- Overdue balance trend.
+
+Allow appropriate date-range filtering.
+
+Charts must update when filters change.
+
+## Recent activity
+
+Display recent events such as:
+
+- New customer registrations.
+- New quotations.
+- Subscription activations.
+- Subscription renewals.
+- Invoice generation.
+- Payments received.
+- Failed billing attempts.
+- Subscription cancellations.
+
+Provide links from dashboard elements to the corresponding records.
+
+---
+
+# 17. FINANCIAL REPORTING AND ANALYTICS
+
+Create a reporting section that answers the finance lead's questions quickly.
+
+## 17.1 Subscription report
+
+Show:
+
+- Total subscriptions.
+- Active subscriptions.
+- Paused subscriptions.
+- Closed subscriptions.
+- Cancelled subscriptions.
+- Expired subscriptions.
+- New subscriptions within the selected period.
+- Renewals due.
+- Upcoming expirations.
+- Subscription status distribution.
+
+Filters:
+
+- Date range.
+- Plan.
+- Customer.
+- Status.
+- Billing frequency.
+
+## 17.2 Revenue report
+
+Show:
+
+- Revenue collected.
+- Invoice value issued.
+- Outstanding invoice balance.
+- Overdue invoice balance.
+- Recurring revenue.
+- Revenue by product.
+- Revenue by plan.
+- Revenue by customer.
+- Revenue by month.
+- Revenue by payment method.
+
+**Keep revenue metrics separate.**
+
+Define:
+
+- **Billed revenue:** Value of eligible invoices issued during the selected period, with adjustments or credit notes accounted for according to the reporting policy.
+- **Cash collected:** Successful payments received during the selected period.
+- **Outstanding receivables:** Remaining balances on eligible invoices at the reporting date.
+- **Monthly recurring revenue (MRR):** Normalized monthly value of eligible active recurring subscription commitments.
+- **Annual recurring revenue (ARR):** Normalized annual value of eligible active recurring subscription commitments.
+
+Document how discounts, taxes, paused subscriptions, cancellations, non-recurring items, and partial periods affect these metrics.
+
+For example, MRR should not simply equal all invoice totals issued in a month.
+
+A monthly subscription of ₹2,000 contributes ₹2,000 to MRR. A yearly subscription of ₹24,000 contributes ₹2,000 to MRR, assuming the full annual commitment is eligible and no applicable adjustment changes that amount.
+
+Keep taxes distinguishable from recurring revenue.
+
+## 17.3 Outstanding and overdue invoices
+
+Provide an overdue invoice report containing:
+
+- Invoice number.
+- Customer.
+- Issue date.
+- Due date.
+- Days overdue.
+- Invoice total.
+- Amount paid.
+- Outstanding balance.
+- Last payment date.
+- Contact information where authorized.
+
+Support filters for:
+
+- Due date.
+- Customer.
+- Overdue duration.
+- Outstanding amount.
+- Invoice status.
+
+Provide an action to open the invoice and an appropriate action to send a payment reminder.
+
+## 17.4 Exports
+
+Allow authorized users to export relevant reports as CSV.
+
+Ensure exported data respects user permissions and active filters.
+
+If PDF reporting is implemented, use a consistent report layout and include the selected reporting period.
+
+---
+
+# 18. SEARCH, FILTERS, SORTING, AND PAGINATION
+
+Every major data table must support useful navigation.
+
+Implement these capabilities where appropriate:
+
+- Search.
+- Filters.
+- Sorting.
+- Pagination.
+- Page-size selection.
+- Empty states.
+- Loading states.
+- Error states.
+
+Apply filtering, sorting, and pagination on the server for large datasets.
+
+Support searches by:
+
+- Customer name.
+- Customer email.
+- Subscription number.
+- Invoice number.
+- Quotation number.
+- Product name.
+- Plan name.
+- Payment reference.
+
+Preserve active filters when navigating between pages where practical.
+
+Use debounced search inputs where appropriate.
+
+Do not load thousands of database records into the browser merely to display one page.
+
+---
+
+# 19. NOTIFICATIONS AND AUTOMATED REMINDERS
+
+Implement an extensible notification module.
+
+## Email notifications
+
+Support notifications for:
+
+- Account invitations.
+- Password resets.
+- Quotations sent to customers.
+- Quotation expiry.
+- Subscription activation.
+- Upcoming renewal.
+- Invoice generation.
+- Invoice due dates.
+- Overdue invoices.
+- Payment confirmation.
+- Subscription cancellation.
+
+## Scheduled reminders
+
+Allow configurable reminders before and after invoice due dates.
+
+For example:
+
+- Three days before the due date.
+- On the due date.
+- Seven days after the due date.
+
+These intervals should be configurable rather than hardcoded as universal business rules.
+
+Use background jobs and retry failed notification deliveries.
+
+Track:
+
+- Notification type.
+- Recipient.
+- Related resource.
+- Delivery status.
+- Attempt count.
+- Last attempt.
+- Error details.
+
+Prevent duplicate reminders for the same event and configured reminder interval.
+
+Notifications must never be able to trigger duplicate invoices or duplicate payments.
+
+---
+
+# 20. DATABASE DESIGN
+
+Design a normalized PostgreSQL schema using Prisma.
+
+At a minimum, consider the following entities.
+
+### Identity and access
+
+- `User`
+- `Role`
+- `Permission`, if granular permissions are implemented
+- `PasswordResetToken`
+- `Session` or equivalent session records
+
+### Customers and catalog
+
+- `Customer`, if customer records are separate from user accounts
+- `Product`
+- `ProductVariant`
+- `SubscriptionPlan`
+- `PlanProduct`, if plans contain multiple products
+
+### Quotations
+
+- `QuotationTemplate`
+- `QuotationTemplateLine`
+- `Quotation`
+- `QuotationLine`
+
+### Subscriptions
+
+- `Subscription`
+- `SubscriptionLine`
+- `SubscriptionChange`
+- `SubscriptionStatusHistory`
+
+### Taxes and discounts
+
+- `TaxRule`
+- `DiscountRule`
+- `DiscountProduct`
+- `DiscountPlan`
+- `DiscountRedemption`
+
+### Billing and invoices
+
+- `Invoice`
+- `InvoiceLine`
+- `BillingEvent`
+- `BillingPeriod`, if a separate entity is useful
+- `CreditNote`, if credit-note functionality is implemented
+
+### Payments
+
+- `Payment`
+- `PaymentAllocation`
+- `PaymentEvent`, if required for payment-provider events
+
+### Operations
+
+- `Notification`
+- `AuditLog`
+- `SystemSetting`
+- `BackgroundJob` or equivalent durable job records, if not provided by the selected queue system
+
+Do not create unnecessary tables merely to follow this list. Select the appropriate relationships based on the final architecture.
+
+## Required database practices
+
+- Use primary keys.
+- Use foreign keys.
+- Add unique constraints.
+- Add appropriate indexes.
+- Add created and updated timestamps.
+- Use explicit monetary decimal types.
+- Use database transactions for financial workflows.
+- Use restrictive deletion policies for financial history.
+- Preserve historical commercial terms.
+- Store audit records for sensitive changes.
+- Implement migrations.
+- Provide a reproducible database seed script.
+
+## Important unique constraints
+
+Enforce uniqueness for:
+
+- Normalized user email.
+- Product SKU, where required.
+- Subscription number.
+- Quotation number.
+- Invoice number.
+- Billing event per subscription and billing period.
+- Payment-provider transaction identifiers where applicable.
+- Password reset token hashes.
+
+Generate human-readable document numbers safely under concurrent requests.
+
+Do not rely on counting existing records to generate invoice numbers, because concurrent requests could create duplicates.
+
+Use an appropriate sequence, unique identifier strategy, or transactional numbering mechanism.
+
+---
+
+# 21. REST API DESIGN
+
+Build a versioned API using a consistent response format.
+
+Suggested base path:
+
+`/api/v1`
+
+Use standard HTTP methods and appropriate status codes.
+
+All endpoints must validate input, enforce authorization, and return meaningful errors.
+
+## Authentication
+
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/logout`
+- `GET /auth/me`
+- `POST /auth/forgot-password`
+- `POST /auth/reset-password`
+
+## Staff and users
+
+- `GET /users`
+- `POST /users/staff`
+- `GET /users/:id`
+- `PATCH /users/:id`
+- `PATCH /users/:id/status`
+
+Staff creation must be administrator-only.
+
+## Customers
+
+- `GET /customers`
+- `POST /customers`
+- `GET /customers/:id`
+- `PATCH /customers/:id`
+- `GET /customers/:id/subscriptions`
+- `GET /customers/:id/invoices`
+
+## Products and variants
+
+- `GET /products`
+- `POST /products`
+- `GET /products/:id`
+- `PATCH /products/:id`
+- `POST /products/:id/variants`
+- `PATCH /variants/:id`
+- `GET /variants/:id`
+
+## Plans
+
+- `GET /plans`
+- `POST /plans`
+- `GET /plans/:id`
+- `PATCH /plans/:id`
+- `PATCH /plans/:id/status`
+
+## Quotation templates
+
+- `GET /quotation-templates`
+- `POST /quotation-templates`
+- `GET /quotation-templates/:id`
+- `PATCH /quotation-templates/:id`
+
+## Quotations
+
+- `GET /quotations`
+- `POST /quotations`
+- `GET /quotations/:id`
+- `PATCH /quotations/:id`
+- `POST /quotations/:id/send`
+- `POST /quotations/:id/accept`
+- `POST /quotations/:id/reject`
+- `POST /quotations/:id/convert-to-subscription`
+
+## Subscriptions
+
+- `GET /subscriptions`
+- `POST /subscriptions`
+- `GET /subscriptions/:id`
+- `PATCH /subscriptions/:id`
+- `POST /subscriptions/:id/activate`
+- `POST /subscriptions/:id/pause`
+- `POST /subscriptions/:id/resume`
+- `POST /subscriptions/:id/renew`
+- `POST /subscriptions/:id/cancel`
+- `POST /subscriptions/:id/close`
+- `GET /subscriptions/:id/invoices`
+
+## Taxes and discounts
+
+- `GET /tax-rules`
+- `POST /tax-rules`
+- `PATCH /tax-rules/:id`
+
+- `GET /discounts`
+- `POST /discounts`
+- `GET /discounts/:id`
+- `PATCH /discounts/:id`
+- `POST /discounts/:id/deactivate`
+
+Restrict tax and discount administration to the administrator.
+
+## Invoices
+
+- `GET /invoices`
+- `POST /invoices`
+- `GET /invoices/:id`
+- `POST /invoices/:id/confirm`
+- `POST /invoices/:id/send`
+- `POST /invoices/:id/cancel`
+- `GET /invoices/:id/pdf`
+- `GET /invoices/:id/payments`
+
+## Payments
+
+- `GET /payments`
+- `POST /payments`
+- `GET /payments/:id`
+- `GET /invoices/:id/payments`
+- `POST /payments/:id/refund`, if refunds are implemented
+
+Payment mutation endpoints must use the correct financial authorization and validation rules.
+
+## Reports
+
+- `GET /reports/dashboard`
+- `GET /reports/subscriptions`
+- `GET /reports/revenue`
+- `GET /reports/overdue-invoices`
+- `GET /reports/payments`
+- `GET /reports/mrr`
+- `GET /reports/arr`
+- `GET /reports/export`
+
+## Customer portal
+
+- `GET /portal/profile`
+- `PATCH /portal/profile`
+- `GET /portal/subscriptions`
+- `GET /portal/subscriptions/:id`
+- `POST /portal/subscriptions/:id/cancel`
+- `POST /portal/subscriptions/:id/pause`
+- `POST /portal/subscriptions/:id/resume`
+- `GET /portal/invoices`
+- `GET /portal/invoices/:id`
+- `GET /portal/payments`
+
+Only expose actions permitted by the relevant subscription policies.
+
+## Billing operations
+
+- `POST /billing/run-due`
+- `GET /billing/events`
+- `GET /billing/events/:id`
+- `POST /billing/events/:id/retry`
+
+Protect administrative billing operations appropriately.
+
+Do not expose unrestricted billing execution to anonymous users.
+
+Scheduled jobs should call the billing service directly or use a secured internal mechanism rather than depending on a publicly accessible endpoint.
+
+---
+
+# 22. UI/UX AND VISUAL DESIGN
+
+Create a modern SaaS interface that looks credible for a real subscription software company.
+
+The design should prioritize clarity, efficiency, and professionalism rather than unnecessary visual effects.
+
+## Visual direction
+
+Use:
+
+- A clean administrative dashboard.
+- A consistent design system.
+- Clear typography.
+- A neutral background.
+- Carefully chosen accent colors.
+- Subtle borders and shadows.
+- Consistent spacing.
+- Rounded cards and form controls.
+- Clear visual hierarchy.
+- Accessible contrast.
+- Responsive layouts.
+- Professional status badges.
+- Helpful empty states.
+- Skeleton loaders.
+- Confirmation dialogs for destructive actions.
+- Toast notifications for successful and failed operations.
+
+Avoid excessive gradients, oversized decorative elements, distracting animations, and unnecessary glassmorphism.
+
+## Main application layout
+
+Create:
+
+- A persistent sidebar on desktop.
+- A responsive mobile navigation system.
+- A top navigation bar.
+- Breadcrumbs where useful.
+- A page title and description.
+- Contextual primary actions.
+- A user account menu.
+- A notification area.
+
+### Administrator navigation
+
+- Dashboard.
+- Customers.
+- Products.
+- Plans.
+- Quotations.
+- Subscriptions.
+- Invoices.
+- Payments.
+- Discounts.
+- Taxes.
+- Reports.
+- Staff Management.
+- Billing Operations.
+- Audit Logs.
+- Settings.
+
+### Staff navigation
+
+Show only the sections and actions the staff member is authorized to use.
+
+### Customer navigation
+
+- My Dashboard.
+- My Subscriptions.
+- My Invoices.
+- My Payments.
+- My Profile.
+
+## Required UI behavior
+
+Every page must include:
+
+- Loading state.
+- Error state.
+- Empty state.
+- Form validation.
+- Appropriate success feedback.
+- Confirmation before consequential actions.
+- Permission-aware actions.
+- Responsive behavior.
+
+Use real API data rather than hardcoded content in the finished application.
+
+Provide useful table filters and avoid overwhelming users with too many controls on one screen.
+
+---
+
+# 23. PERFORMANCE REQUIREMENTS
+
+The challenge specifies that pages should respond in under two seconds even with thousands of subscriptions.
+
+Design and test for this requirement.
+
+## Backend optimization
+
+- Use database indexes for frequently filtered fields.
+- Implement server-side pagination.
+- Avoid N+1 queries.
+- Select only the fields required for each response.
+- Optimize dashboard aggregation queries.
+- Use efficient database joins and grouped queries.
+- Cache appropriate read-heavy data where useful.
+- Invalidate caches when relevant records change.
+- Avoid recalculating all historical revenue for every dashboard request.
+- Use background jobs for expensive operations.
+- Use database transactions efficiently.
+
+## Frontend optimization
+
+- Load large tables in pages.
+- Debounce search.
+- Avoid unnecessary rerenders.
+- Use query caching.
+- Load large report sections only when needed.
+- Avoid unnecessarily large bundles.
+- Use lazy loading for secondary routes where appropriate.
+
+## Performance verification
+
+Seed thousands of representative subscriptions, invoices, and payments.
+
+Measure important API response times and dashboard queries under a documented test environment.
+
+Target:
+
+- Common list and detail API responses under two seconds.
+- Dashboard queries under two seconds.
+- Pagination that remains responsive as the dataset grows.
+- Billing jobs that process multiple due subscriptions safely.
+
+Treat the two-second requirement as a performance target to verify, not a guarantee that can be claimed without testing.
+
+---
+
+# 24. SECURITY REQUIREMENTS
+
+Implement the following protections:
+
+1. Secure password hashing.
+2. Server-side authorization.
+3. Resource ownership checks.
+4. Request validation.
+5. SQL injection prevention through safe database access.
+6. XSS protection through appropriate output handling.
+7. CSRF protection when required by the authentication strategy.
+8. Rate limiting on authentication and sensitive endpoints.
+9. Secure password reset tokens.
+10. Secure cookie configuration.
+11. CORS restrictions.
+12. Environment-based secrets.
+13. Audit logging.
+14. Safe error responses.
+15. Protection against unauthorized role escalation.
+16. Protection against duplicate financial operations.
+17. Protection against IDOR vulnerabilities.
+18. Secure webhook verification if payment integrations are enabled.
+
+Do not store passwords, authentication secrets, payment credentials, or reset tokens in plaintext.
+
+Never commit `.env` files containing real credentials.
+
+Provide a `.env.example` file with placeholder values.
+
+Do not trust customer-supplied prices, tax totals, discounts, invoice statuses, payment statuses, or role values.
+
+Recalculate and validate financial values on the backend.
+
+---
+
+# 25. AUDIT LOGGING
+
+Create an audit trail for important operations.
+
+Record events such as:
+
+- Staff account creation.
+- Role or permission changes.
+- Product price changes.
+- Plan policy changes.
+- Tax rule changes.
+- Discount creation and modification.
+- Quotation acceptance.
+- Subscription activation.
+- Subscription cancellation.
+- Invoice confirmation.
+- Invoice cancellation.
+- Payment recording.
+- Payment correction.
+- Refund processing, if supported.
+- Manual billing retries.
+- Important configuration changes.
+
+Each audit entry should contain:
+
+- Actor.
+- Action.
+- Resource type.
+- Resource identifier.
+- Timestamp.
+- Relevant before-and-after values where appropriate.
+- Request correlation identifier, if available.
+
+Avoid storing passwords, access tokens, or unnecessary personal information in audit logs.
+
+Audit logs should be readable by administrators and protected against ordinary unauthorized modification.
+
+---
+
+# 26. TESTING STRATEGY
+
+Implement automated tests for the most important business rules.
+
+Use a suitable combination of unit tests, integration tests, API tests, and end-to-end tests.
+
+## Authentication tests
+
+Verify:
+
+- Successful registration.
+- Duplicate email rejection.
+- Password validation.
+- Successful login.
+- Invalid login rejection.
+- Password reset expiration.
+- Single-use reset tokens.
+- Role escalation prevention.
+
+## Product and plan tests
+
+Verify:
+
+- Product creation.
+- Variant price adjustments.
+- Plan creation.
+- Plan availability rules.
+- Plan policy enforcement.
+- Historical price preservation.
+
+## Quotation tests
+
+Verify:
+
+- Template-based quotation creation.
+- Correct quotation expiry.
+- Accurate line calculations.
+- Acceptance and conversion.
+- Prevention of duplicate conversions.
+
+## Subscription tests
+
+Verify:
+
+- Valid status transitions.
+- Invalid transitions rejected.
+- Pause and resume permissions.
+- Renewal eligibility.
+- Correct next billing dates.
+- Plan-based policy enforcement.
+
+## Billing tests
+
+Verify:
+
+- Due subscriptions generate invoices.
+- Monthly, weekly, daily, and yearly billing.
+- Correct billing-period boundaries.
+- End-of-month billing.
+- Leap-year behavior.
+- Paused subscriptions follow the configured policy.
+- Failed billing can be retried.
+- Duplicate billing jobs do not create duplicate invoices.
+- Concurrent billing attempts remain safe.
+
+## Tax and discount tests
+
+Verify:
+
+- Correct percentage taxes.
+- Correct discount amounts.
+- Minimum purchase conditions.
+- Minimum quantity conditions.
+- Discount start and end dates.
+- Usage-limit enforcement.
+- Recurring discount expiration.
+- Correct rounding.
+- Tax and discount snapshots.
+
+## Invoice and payment tests
+
+Verify:
+
+- Invoice total calculations.
+- Partial payment handling.
+- Fully paid invoice handling.
+- Outstanding balance calculations.
+- Duplicate payment prevention.
+- Invalid payment rejection.
+- Invoice cancellation restrictions.
+- Payment history preservation.
+
+## Authorization tests
+
+Verify that:
+
+- Staff cannot create staff accounts.
+- Staff cannot modify restricted tax or discount rules.
+- Customers cannot access administrative APIs.
+- Customers cannot access another customer's invoice.
+- Customers cannot access another customer's subscription.
+- Unauthorized users cannot execute billing operations.
+
+## End-to-end tests
+
+At minimum, automate the following scenario:
+
+1. An administrator logs in.
+2. The administrator creates a product.
+3. The administrator adds a product variant.
+4. The administrator creates a subscription plan.
+5. A customer registers.
+6. A quotation is created using a template.
+7. The quotation is accepted.
+8. The quotation is converted into a subscription.
+9. The subscription becomes active.
+10. The billing scheduler generates an invoice.
+11. The invoice is confirmed.
+12. A payment is recorded.
+13. The invoice becomes paid.
+14. The dashboard reflects the correct subscription and financial data.
+
+Also test a partial payment, an overdue invoice, and a failed billing attempt.
+
+---
+
+# 27. DEMO DATA AND HACKATHON PRESENTATION
+
+Create realistic demo data so the application can be demonstrated immediately after setup.
+
+The seed script must be reproducible and must not create duplicate data each time it runs.
+
+Include:
+
+## Products
+
+1. Brightloop Starter.
+2. Brightloop Business.
+3. Brightloop Enterprise.
+4. Odoo Integration Add-on.
+5. Premium Analytics Add-on.
+
+## Plans
+
+Create examples of:
+
+- Daily billing.
+- Weekly billing.
+- Monthly billing.
+- Yearly billing.
+
+Include different price points and plan policies.
+
+## Customers
+
+Create sample customers representing:
+
+- A small business on a monthly plan.
+- A growing company with multiple seats.
+- An enterprise customer on a yearly contract.
+- A customer with an overdue invoice.
+- A customer with a partially paid invoice.
+- A customer with an upcoming renewal.
+
+## Quotations
+
+Include quotations in different states, such as:
+
+- Draft.
+- Sent.
+- Accepted.
+- Rejected.
+- Expired.
+
+## Subscriptions
+
+Include:
+
+- Active subscriptions.
+- Paused subscriptions.
+- Subscriptions awaiting confirmation.
+- Subscriptions due for renewal.
+- Cancelled subscriptions.
+- Expired subscriptions.
+
+## Invoices
+
+Include:
+
+- Draft invoices.
+- Confirmed invoices.
+- Fully paid invoices.
+- Partially paid invoices.
+- Overdue invoices.
+- Cancelled invoices.
+
+## Payments
+
+Include:
+
+- Successful UPI payment.
+- Bank transfer.
+- Card payment record.
+- Partial payment.
+- Payment associated with an overdue invoice.
+
+Clearly identify demo data and simulated transactions.
+
+Do not make simulated payment records appear as real gateway transactions.
+
+Provide documented development-only demo credentials through the README or seed output. Do not use production credentials or hardcoded default administrator passwords in production.
+
+---
+
+# 28. DEPLOYMENT AND DOCUMENTATION
+
+Prepare the project for local development and deployment.
+
+Provide:
+
+- Complete source code.
+- Frontend application.
+- Backend application.
+- Prisma schema.
+- Database migrations.
+- Seed script.
+- API documentation.
+- Environment variable example.
+- Automated tests.
+- Docker configuration, if appropriate.
+- Production build scripts.
+- Deployment instructions.
+- GitHub README.
+
+## README requirements
+
+The README must include:
+
+1. Project overview.
+2. Problem statement.
+3. Solution summary.
+4. Main features.
+5. Technology stack.
+6. Architecture overview.
+7. Database schema overview.
+8. Installation instructions.
+9. Environment configuration.
+10. Database setup.
+11. Migration commands.
+12. Seed commands.
+13. Development commands.
+14. Test commands.
+15. Production build instructions.
+16. API documentation.
+17. Demo credentials and access instructions for local development.
+18. Screenshots or placeholders for screenshots.
+19. Known limitations.
+20. Future enhancements.
+
+Provide exact commands that match the implemented package scripts.
+
+Do not document features that have not actually been implemented.
+
+---
+
+# 29. IMPLEMENTATION WORKFLOW
+
+Follow these phases in order.
+
+## Phase 1: Repository inspection
+
+Before changing files:
+
+1. Inspect the complete existing repository.
+2. Identify the frontend framework.
+3. Identify the build system and package manager.
+4. Inspect the routing structure.
+5. Inspect existing components.
+6. Inspect existing backend code.
+7. Identify the database configuration.
+8. Identify existing API endpoints.
+9. Review authentication and authorization.
+10. Identify missing features and broken workflows.
+11. Check environment variables and configuration.
+12. Identify existing tests.
+13. Identify reusable components.
+14. Identify potential architectural problems.
+
+Produce a concise technical assessment and an implementation plan.
+
+Preserve existing working functionality.
+
+Do not delete, overwrite, or replace working files without understanding their purpose.
+
+If a repository is empty, initialize the project using the recommended architecture.
+
+## Phase 2: Architecture and database
+
+Design the database schema and module boundaries.
+
+Define:
+
+- Entity relationships.
+- Role permissions.
+- State-transition rules.
+- Monetary calculation rules.
+- Billing-period logic.
+- Invoice-number generation.
+- Payment-allocation logic.
+- Discount eligibility.
+- Tax application.
+- Audit events.
+
+Implement the database schema and migrations.
+
+Run the migrations and verify that the application can connect to the database.
+
+## Phase 3: Backend foundation
+
+Implement:
+
+- API structure.
+- Authentication.
+- Authorization middleware.
+- Input validation.
+- Error handling.
+- Logging.
+- Database access.
+- Audit logging.
+- API documentation.
+
+Verify the backend before implementing complex UI workflows.
+
+## Phase 4: Core business modules
+
+Implement in this order:
+
+1. User and customer management.
+2. Products and variants.
+3. Subscription plans.
+4. Tax rules.
+5. Discount rules.
+6. Quotation templates.
+7. Quotations.
+8. Subscriptions.
+9. Invoice generation.
+10. Payment management.
+11. Billing scheduler.
+12. Reports and analytics.
+13. Notifications.
+14. Customer portal.
+
+For each module, implement the database operations, backend logic, API endpoints, validation, authorization, frontend pages, and tests.
+
+Do not leave the backend unfinished while building a large collection of static frontend screens.
+
+## Phase 5: Frontend implementation
+
+Build the application shell, dashboards, forms, tables, detail pages, dialogs, and customer portal.
+
+Connect every functional page to the actual backend.
+
+Implement loading states, empty states, errors, validation messages, and success feedback.
+
+Verify that all navigation links and major actions work.
+
+## Phase 6: Billing reliability
+
+Implement and verify:
+
+- Scheduled execution.
+- Duplicate prevention.
+- Billing-period uniqueness.
+- Transactional invoice generation.
+- Safe retries.
+- Next billing date updates.
+- Discount usage tracking.
+- Invoice and payment reconciliation.
+- Failed-job visibility.
+
+Test concurrent execution and repeated scheduler runs.
+
+## Phase 7: Integration and testing
+
+Run the full test suite.
+
+Test the end-to-end business workflow.
+
+Verify authorization boundaries.
+
+Verify invoice totals against independent expected calculations.
+
+Verify dashboard metrics against database records.
+
+Fix critical bugs before moving forward.
+
+## Phase 8: Performance and security
+
+Test large datasets.
+
+Optimize slow queries.
+
+Review authentication, permissions, input validation, and financial transaction handling.
+
+Verify that unauthorized users cannot access restricted information.
+
+## Phase 9: Final delivery
+
+Provide:
+
+- A working local application.
+- Database setup instructions.
+- Seed data.
+- Demo login instructions.
+- Automated tests.
+- API documentation.
+- README.
+- Environment configuration example.
+- Deployment instructions.
+- A list of completed features.
+- A list of known limitations.
+- A demonstration workflow.
+
+Do not report a feature as complete unless its essential workflow has been implemented and verified.
+
+---
+
+# 30. DEFINITION OF DONE
+
+The project is considered complete only when the following requirements have been met.
+
+### Authentication
+
+- Registration works.
+- Duplicate email addresses are rejected.
+- Password rules are enforced.
+- Login and logout work.
+- Password reset is implemented.
+- Staff creation is administrator-only.
+
+### Product and plan management
+
+- Products can be created and edited.
+- Product variants affect prices correctly.
+- Plans support all four billing frequencies.
+- Plan availability dates are enforced.
+- Subscription policies are respected.
+
+### Quotations and subscriptions
+
+- Quotations can be created from templates.
+- Quotation validity is calculated correctly.
+- Accepted quotations can be converted into subscriptions.
+- Subscription status transitions are validated.
+- Customers can access only their own records.
+- Permitted pause, resume, cancellation, and renewal actions work.
+
+### Billing and invoices
+
+- Due subscriptions generate invoices automatically.
+- Billing jobs can run more than once without duplicating invoices.
+- All billing frequencies work.
+- Billing dates handle calendar boundaries correctly.
+- Tax calculations are accurate.
+- Discounts are applied only when eligible.
+- Historical prices and tax snapshots are preserved.
+- Invoices can be confirmed, sent, printed, and downloaded.
+- Failed billing attempts can be identified and retried.
+
+### Payments
+
+- Payments can be recorded.
+- Partial payments work.
+- Invoice balances update correctly.
+- Fully paid invoices are identified correctly.
+- Duplicate financial operations are prevented.
+- Payment history is preserved.
+
+### Reporting
+
+- Dashboard values come from actual data.
+- Active subscriptions are counted correctly.
+- Collected revenue is distinguished from billed revenue.
+- MRR and ARR use defined normalization rules.
+- Outstanding balances are correct.
+- Overdue invoices can be filtered.
+- CSV exports work.
+
+### Performance and quality
+
+- Server-side pagination is implemented.
+- Appropriate indexes are present.
+- Important workflows have automated tests.
+- Large-dataset performance has been measured.
+- No critical authorization issues remain.
+- The application can be installed from the README.
+- The seed script works.
+- The production build succeeds.
+
+---
+
+# 31. PRIORITIES IF HACKATHON TIME IS LIMITED
+
+If the time available is limited, prioritize a smaller number of complete, reliable workflows rather than implementing every feature superficially.
+
+### Priority 1 — Essential MVP
+
+Implement these first:
+
+1. Authentication and role-based access.
+2. Product and variant management.
+3. Subscription plan management.
+4. Customer management.
+5. Quotation creation and conversion.
+6. Subscription lifecycle.
+7. Automatic invoice generation.
+8. Tax and discount calculations.
+9. Payment recording.
+10. Outstanding and overdue invoice tracking.
+11. Dashboard with active subscriptions, collected revenue, and outstanding balances.
+
+### Priority 2 — High-value differentiators
+
+Next implement:
+
+1. Recurring billing scheduler with duplicate prevention.
+2. Customer self-service portal.
+3. MRR and ARR analytics.
+4. Invoice PDF generation.
+5. Upcoming renewal reminders.
+6. Audit logs.
+7. CSV reporting.
+8. Failed billing job management.
+
+### Priority 3 — Advanced features
+
+If time permits, implement:
+
+1. Real payment gateway integration.
+2. Advanced permissions.
+3. Multi-product subscriptions.
+4. Proration.
+5. Credit notes and refunds.
+6. Advanced revenue analytics.
+7. Webhook integrations.
+8. More extensive performance testing.
+
+Even if advanced features are deferred, the core architecture must support extending the application without a major rewrite.
+
+---
+
+# 32. FINAL INSTRUCTIONS TO THE CODING AGENT
+
+Treat this as a real business software engineering project.
+
+Follow these rules throughout development:
+
+1. Inspect before implementing.
+2. Preserve existing working code.
+3. Use the existing stack unless there is a compelling technical reason to change it.
+4. Implement the actual business requirements rather than merely creating visual mockups.
+5. Use a persistent relational database.
+6. Enforce authorization on the server.
+7. Keep financial calculations consistent and auditable.
+8. Use transactions for related financial operations.
+9. Make recurring billing safe to retry.
+10. Prevent duplicate invoices and payments.
+11. Preserve historical commercial records.
+12. Implement explicit state transitions.
+13. Use real database-backed dashboards.
+14. Make all important forms and actions functional.
+15. Avoid hardcoded financial metrics.
+16. Avoid fake success messages.
+17. Do not silently swallow errors.
+18. Do not expose secrets.
+19. Write tests for critical business rules.
+20. Document limitations honestly.
+
+When a third-party integration requires credentials that are unavailable, build a clearly separated integration interface and a safe development alternative. Do not pretend the external integration is operational.
+
+When a business rule is ambiguous, document the chosen behavior and implement it consistently.
+
+After completing each phase, run the relevant tests and fix failures before proceeding.
+
+Do not stop after generating the project structure, database schema, or initial dashboard. Continue until the core workflows are implemented, integrated, and tested.
+
+**Your final objective is to deliver Brightloop: a secure, polished, database-backed Subscription Management System that can demonstrate the complete subscription lifecycle, automate recurring invoice generation, accurately track payments and outstanding balances, and provide meaningful financial reporting.**
