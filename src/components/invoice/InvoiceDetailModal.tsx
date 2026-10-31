@@ -83,15 +83,17 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
     }
   };
 
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
   const handleCancel = async () => {
-    if (!confirm('Are you sure you want to cancel this invoice? This cannot be undone.')) return;
     try {
       await apiRequest(`/invoices/${invoiceId}/cancel`, { method: 'POST' });
       setActionMessage('Invoice has been cancelled.');
+      setShowCancelConfirm(false);
       fetchInvoice();
       onUpdated?.();
     } catch (err: any) {
-      alert(err.message);
+      setActionMessage(`Cancel failed: ${err.message}`);
     }
   };
 
@@ -183,13 +185,31 @@ export const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                 )}
 
                 {!isCustomer && invoice.amount_paid === 0 && invoice.status !== 'cancelled' && (
-                  <button
-                    onClick={handleCancel}
-                    className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-                    title="Cancel Invoice"
-                  >
-                    <Ban className="w-4 h-4" />
-                  </button>
+                  showCancelConfirm ? (
+                    <div className="flex items-center gap-1.5 px-2 py-1 bg-rose-50 border border-rose-200 rounded-lg">
+                      <span className="text-[10px] text-rose-700 font-semibold">Cancel this invoice?</span>
+                      <button
+                        onClick={handleCancel}
+                        className="px-2 py-0.5 bg-rose-600 text-white rounded text-[10px] font-bold hover:bg-rose-700 cursor-pointer"
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setShowCancelConfirm(false)}
+                        className="px-1.5 py-0.5 bg-white border border-slate-200 text-slate-600 rounded text-[10px] font-medium hover:bg-slate-50 cursor-pointer"
+                      >
+                        No
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowCancelConfirm(true)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+                      title="Cancel Invoice"
+                    >
+                      <Ban className="w-4 h-4" />
+                    </button>
+                  )
                 )}
               </div>
             </div>

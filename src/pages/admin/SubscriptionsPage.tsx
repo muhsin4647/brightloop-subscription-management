@@ -35,6 +35,8 @@ export const SubscriptionsPage: React.FC = () => {
   const [selectedSub, setSelectedSub] = useState<any | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [actionMsg, setActionMsg] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [subToCancel, setSubToCancel] = useState<Subscription | null>(null);
 
   const fetchSubscriptions = async () => {
     try {
@@ -86,26 +88,28 @@ export const SubscriptionsPage: React.FC = () => {
   const viewSubscriptionDetail = async (id: string) => {
     setDetailLoading(true);
     setActionMsg(null);
+    setActionError(null);
     try {
       const data = await apiRequest(`/subscriptions/${id}`);
       setSelectedSub(data);
     } catch (err: any) {
-      alert(err.message);
+      setActionError(err.message || 'Failed to load details.');
     } finally {
       setDetailLoading(false);
     }
   };
 
   const handleAction = async (id: string, action: 'pause' | 'resume' | 'cancel' | 'renew' | 'close') => {
+    setActionError(null);
     try {
-      const res = await apiRequest(`/subscriptions/${id}/${action}`, { method: 'POST' });
-      setActionMsg(res.message);
+      const res = await apiRequest<{ message?: string }>(`/subscriptions/${id}/${action}`, { method: 'POST' });
+      setActionMsg(res.message || 'Subscription updated.');
       await fetchSubscriptions();
       if (selectedSub && selectedSub.subscription.id === id) {
         await viewSubscriptionDetail(id);
       }
     } catch (err: any) {
-      alert(`Action failed: ${err.message}`);
+      setActionError(`Action failed: ${err.message}`);
     }
   };
 
@@ -129,6 +133,21 @@ export const SubscriptionsPage: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {actionError && (
+        <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium flex items-center justify-between animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{actionError}</span>
+          </div>
+          <button
+            onClick={() => setActionError(null)}
+            className="text-rose-700 font-semibold hover:underline cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {actionMsg && (
         <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-medium flex items-center justify-between animate-in fade-in">
@@ -346,9 +365,8 @@ export const SubscriptionsPage: React.FC = () => {
                         {sub.status === 'active' && sub.early_closure_permitted && (
                           <button
                             onClick={() => {
-                              if (confirm(`Cancel subscription ${sub.subscription_number}?`)) {
-                                handleAction(sub.id, 'cancel');
-                              }
+                              setActionError(null);
+                              setSubToCancel(sub);
                             }}
                             className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
                             title="Cancel Subscription"
@@ -535,6 +553,70 @@ export const SubscriptionsPage: React.FC = () => {
           </div>
         </Modal>
       )}
+
+      {/* Admin Cancel Confirmation Modal */}
+      <Modal
+        isOpen={!!subToCancel}
+        onClose={() => setSubToCancel(null)}
+        title="Cancel Subscription"
+        subtitle={subToCancel ? `Contract: ${subToCancel.subscription_number}` : ''}
+        maxWidth="max-w-md"
+      >
+        <div className="space-y-4 pt-1">
+          <div className="p-4 rounded-xl bg-rose-50 border border-rose-200/80 flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 mt-0.5">
+              <Ban className="w-4 h-4" />
+            </div>
+            <div className="space-y-1 text-xs text-rose-900">
+              <p className="font-semibold text-rose-950">
+                Cancel subscription {subToCancel?.subscription_number}?
+              </p>
+              <p className="text-rose-700 leading-relaxed">
+                This will terminate the recurring schedule for <strong className="font-semibold text-rose-900">{subToCancel?.customer_name || 'the customer'}</strong>. Future automated invoices will not be generated.
+              </p>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-xs text-slate-600">
+            <div className="flex justify-between">
+              <span className="text-slate-400">Plan:</span>
+              <span className="font-semibold text-slate-800">{subToCancel?.plan_name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Customer:</span>
+              <span className="font-semibold text-slate-800">{subToCancel?.customer_name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Recurring Amount:</span>
+              <span className="font-mono font-bold text-slate-800">{subToCancel ? formatCurrency(subToCancel.total_amount) : ''}</span>
+            </div>
+          </div>
+
+          <div className="pt-2 flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              onClick={() => setSubToCancel(null)}
+              className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
+            >
+              Keep Subscription
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                if (subToCancel) {
+                  const id = subToCancel.id;
+                  setSubToCancel(null);
+                  await handleAction(id, 'cancel');
+                }
+              }}
+              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <Ban className="w-3.5 h-3.5" />
+              <span>Confirm Cancellation</span>
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
