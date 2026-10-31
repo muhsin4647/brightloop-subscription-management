@@ -81,10 +81,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
 
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-30 w-[320px] bg-white border-r border-slate-100 p-6 flex flex-col justify-between select-none shadow-[1px_0_4px_rgba(0,0,0,0.02)]">
-        {/* Top Section: Fixed Nav Heads (Brand & Workspace Header) */}
-        <div className="shrink-0 space-y-6">
-          {/* Brand Logo & Name */}
+      <aside className="fixed inset-y-0 left-0 z-30 w-[350px] bg-white border-r border-slate-100 p-6 flex flex-col select-none overflow-y-auto shadow-[1px_0_4px_rgba(0,0,0,0.02)] space-y-6">
+        {/* Brand Header */}
+        <div className="shrink-0 space-y-5">
           <div
             onClick={() => onNavigate(isCustomer ? '/portal' : '/')}
             className="flex items-center gap-3.5 px-1 py-1 cursor-pointer group"
@@ -108,8 +107,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
           </div>
         </div>
 
-        {/* Scrollable Navigation Items */}
-        <nav className="flex-1 overflow-y-auto space-y-1.5 my-3 pr-1">
+        {/* Primary Navigation Items */}
+        <nav className="space-y-1">
           {items.map((item) => {
             const isActive =
               currentPath === item.path ||
@@ -149,45 +148,43 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
           })}
         </nav>
 
-        {/* Bottom Section: Help, Settings, & Promo Card */}
-        <div className="shrink-0 space-y-4 pt-3 border-t border-slate-100">
-          <div className="space-y-1">
-            <button
-              onClick={() => setShowHelpModal(true)}
-              className="w-full flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-[13px] font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer text-left"
-            >
-              <HelpCircle className="w-4 h-4 text-slate-400" />
-              <span>Help &amp; support</span>
-            </button>
+        {/* Secondary Navigation: Help & Settings immediately following Discounts with NO GAP */}
+        <div className="space-y-1 pt-2 border-t border-slate-100">
+          <button
+            onClick={() => setShowHelpModal(true)}
+            className="w-full flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-[13px] font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer text-left"
+          >
+            <HelpCircle className="w-4 h-4 text-slate-400" />
+            <span>Help &amp; support</span>
+          </button>
 
-            <button
-              onClick={() => onNavigate(isCustomer ? '/portal/profile' : '/staff')}
-              className="w-full flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-[13px] font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer text-left"
-            >
-              <Settings className="w-4 h-4 text-slate-400" />
-              <span>Settings</span>
-            </button>
-          </div>
+          <button
+            onClick={() => onNavigate(isCustomer ? '/portal/profile' : '/staff')}
+            className="w-full flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-[13px] font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer text-left"
+          >
+            <Settings className="w-4 h-4 text-slate-400" />
+            <span>Settings</span>
+          </button>
+        </div>
 
-          {/* Scale with Confidence Promo Card */}
-          <div className="p-4 rounded-2xl bg-[#f5f2fe] border border-[#ebe5fc] flex flex-col space-y-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#6342e8] flex items-center justify-center text-white shadow-xs">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="text-xs font-bold text-slate-900 leading-snug">Scale with confidence</div>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                Automate billing and save more time.
-              </p>
-            </div>
-            <button
-              onClick={() => onNavigate('/billing')}
-              className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#6342e8] hover:text-[#5232d6] transition-colors cursor-pointer pt-1"
-            >
-              <span>Explore automation</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
+        {/* Scale with Confidence Promo Card directly positioned below Settings */}
+        <div className="p-4 rounded-2xl bg-[#f5f2fe] border border-[#ebe5fc] flex flex-col space-y-2.5 mt-2">
+          <div className="w-8 h-8 rounded-xl bg-[#6342e8] flex items-center justify-center text-white shadow-xs">
+            <TrendingUp className="w-4 h-4" />
           </div>
+          <div>
+            <div className="text-xs font-bold text-slate-900 leading-snug">Scale with confidence</div>
+            <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+              Automate billing and save more time.
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigate('/billing')}
+            className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#6342e8] hover:text-[#5232d6] transition-colors cursor-pointer pt-1"
+          >
+            <span>Explore automation</span>
+            <ArrowRight className="w-3 h-3" />
+          </button>
         </div>
       </aside>
 

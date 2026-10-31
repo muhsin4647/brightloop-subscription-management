@@ -82,8 +82,8 @@ function MainRouter() {
       {/* Fixed Sidebar matching reference UI */}
       <Sidebar currentPath={currentPath} onNavigate={navigate} />
 
-      {/* Main Content Area physically offset by fixed 320px sidebar */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto ml-[320px]">
+      {/* Main Content Area physically offset by fixed 350px sidebar */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto ml-[350px]">
         {/* Sticky Top Navbar pinned at the top-left of the viewport */}
         <div className="sticky top-0 z-20 bg-[#f8f9fb]/95 backdrop-blur-md px-6 sm:px-8 pt-5 pb-3 border-b border-slate-200/60 shadow-2xs">
           <Navbar onNavigate={navigate} />
