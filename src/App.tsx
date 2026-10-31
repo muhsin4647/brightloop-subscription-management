@@ -82,15 +82,11 @@ function MainRouter() {
       {/* Fixed Sidebar matching reference UI */}
       <Sidebar currentPath={currentPath} onNavigate={navigate} />
 
-      {/* Main Content Area physically offset by fixed 350px sidebar */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto ml-[350px]">
-        {/* Sticky Top Navbar pinned at the top-left of the viewport */}
-        <div className="sticky top-0 z-20 bg-[#f8f9fb]/95 backdrop-blur-md px-6 sm:px-8 pt-5 pb-3 border-b border-slate-200/60 shadow-2xs">
+      {/* Main Content Area offset by fixed sidebar width */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-y-auto pl-72">
+        <div className="flex-1 p-6 sm:p-8 flex flex-col w-full">
+          {/* Integrated Top Bar with Search, Shortcut & Profile */}
           <Navbar onNavigate={navigate} />
-        </div>
-
-        {/* Page Content View */}
-        <div className="flex-1 p-6 sm:p-8 pt-4 flex flex-col w-full max-w-[1600px]">
 
           {/* Operations & Admin Routes */}
           {role !== 'CUSTOMER' && (
