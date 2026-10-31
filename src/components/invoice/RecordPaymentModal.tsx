@@ -61,21 +61,21 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Record Payment for ${invoice.invoice_number}`}
-      subtitle={`Customer: ${invoice.customer_name} | Outstanding: ${formatCurrency(invoice.outstanding_amount)}`}
-      maxWidth="max-w-lg"
+      title={`Record Payment for #${invoice.invoice_number}`}
+      subtitle={`Customer: ${invoice.customer_name} · Outstanding: ${formatCurrency(invoice.outstanding_amount)}`}
+      maxWidth="max-w-md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
+          <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
             {error}
           </div>
         )}
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Amount (INR)</label>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Amount (INR) *</label>
           <div className="relative">
-            <span className="absolute left-3 top-2 text-slate-400 font-bold text-sm">₹</span>
+            <span className="absolute left-3.5 top-2.5 text-slate-400 font-bold text-xs">₹</span>
             <input
               type="number"
               step="0.01"
@@ -84,20 +84,20 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
-              className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+              className="w-full pl-8 pr-3.5 py-2 border border-slate-200/90 rounded-xl text-xs font-mono font-bold bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-hidden tabular-nums"
             />
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
-            Max allocatable: {formatCurrency(invoice.outstanding_amount)}
+          <p className="text-[11px] text-slate-400 mt-1 font-mono">
+            Max allocatable balance: {formatCurrency(invoice.outstanding_amount)}
           </p>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Method</label>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Channel / Instrument *</label>
           <select
             value={paymentMethod}
             onChange={(e: any) => setPaymentMethod(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+            className="w-full px-3.5 py-2 border border-slate-200/90 rounded-xl text-xs bg-slate-50/50 text-slate-700 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-hidden cursor-pointer"
           >
             <option value="upi">UPI / Instant QR</option>
             <option value="bank_transfer">Bank Wire / NEFT / RTGS</option>
@@ -108,39 +108,39 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Transaction Reference / UTR Number</label>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">UTR Reference / Transaction ID</label>
           <input
             type="text"
             placeholder="e.g. UPI-20261031-10293 or NEFT-HDFC-991122"
             value={reference}
             onChange={(e) => setReference(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3.5 py-2 border border-slate-200/90 rounded-xl text-xs font-mono bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-hidden"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Notes / Reconciliation Remarks</label>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Reconciliation Remarks (Optional)</label>
           <textarea
             rows={2}
-            placeholder="Optional internal remarks..."
+            placeholder="Internal settlement note or voucher ID..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3.5 py-2 border border-slate-200/90 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-hidden resize-none"
           />
         </div>
 
-        <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-xs transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs shadow-indigo-600/30 transition-all disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Recording...' : 'Confirm & Allocate Payment'}
           </button>

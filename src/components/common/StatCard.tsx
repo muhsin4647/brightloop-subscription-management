@@ -24,25 +24,35 @@ export const StatCard: React.FC<StatCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className={`p-5 rounded-xl border bg-white shadow-xs transition-all ${
-        highlight ? 'border-indigo-200 bg-indigo-50/20' : 'border-slate-200 hover:border-slate-300'
-      } ${onClick ? 'cursor-pointer hover:shadow-sm' : ''}`}
+      className={`p-5 rounded-2xl border bg-white transition-all shadow-[0_1px_3px_rgba(0,0,0,0.04)] ${
+        highlight
+          ? 'border-indigo-300 ring-1 ring-indigo-500/10'
+          : 'border-slate-200/90 hover:border-slate-300'
+      } ${onClick ? 'cursor-pointer hover:shadow-md hover:-translate-y-0.5' : ''}`}
     >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-medium uppercase tracking-wider text-slate-500">{title}</span>
-        {icon && <div className="p-2 rounded-lg bg-slate-100 text-slate-700">{icon}</div>}
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{title}</span>
+        {icon && (
+          <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 text-slate-600">
+            {icon}
+          </div>
+        )}
       </div>
 
       <div className="flex items-baseline gap-2">
-        <div className="text-2xl font-bold tracking-tight text-slate-900">{value}</div>
+        <div className="text-2xl font-extrabold tracking-tight text-slate-900 font-mono tabular-nums">{value}</div>
         {trend && (
-          <span className={`text-xs font-semibold ${trendUp ? 'text-emerald-600' : 'text-rose-600'}`}>
+          <span
+            className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
+              trendUp ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+            }`}
+          >
             {trend}
           </span>
         )}
       </div>
 
-      {subtitle && <p className="mt-1 text-xs text-slate-500">{subtitle}</p>}
+      {subtitle && <p className="mt-1.5 text-xs text-slate-500 leading-relaxed">{subtitle}</p>}
     </div>
   );
 };
