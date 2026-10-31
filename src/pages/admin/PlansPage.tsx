@@ -123,7 +123,7 @@ export const PlansPage: React.FC = () => {
   const bizDb = dbPlans.find((p) => p.code === 'PLAN-BIZ-M') || dbPlans[0];
   const entDb = dbPlans.find((p) => p.code === 'PLAN-ENT-Y') || dbPlans[2] || dbPlans[0];
 
-  // 4 Core Tiers matching Revora screenshot
+  // 4 Core Tiers
   const tiers: PlanTierConfig[] = [
     {
       id: 'starter',

@@ -57,9 +57,9 @@ function MainRouter() {
       <div className="min-h-screen bg-[#f4f3fb] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-lg shadow-indigo-500/20 animate-pulse">
-            R
+            BL
           </div>
-          <span className="text-xs text-slate-600 font-bold tracking-wider uppercase">Loading Revora Platform...</span>
+          <span className="text-xs text-slate-600 font-bold tracking-wider uppercase">Loading Brightloop Platform...</span>
         </div>
       </div>
     );
@@ -79,7 +79,7 @@ function MainRouter() {
   // Render main application shell
   return (
     <div className="min-h-screen bg-[#f4f3fb] flex font-sans text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
-      {/* Revora Soft-Lavender Sidebar */}
+      {/* Soft-Lavender Sidebar */}
       <Sidebar currentPath={currentPath} onNavigate={navigate} />
 
       {/* Main Container: Crisp white card with rounded-28px */}

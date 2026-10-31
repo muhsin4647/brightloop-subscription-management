@@ -266,7 +266,7 @@ export const PurchasePlanModal: React.FC<PurchasePlanModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold tracking-tight text-slate-900">Revora Secure Checkout</h2>
+                <h2 className="text-sm font-bold tracking-tight text-slate-900">Brightloop Secure Checkout</h2>
                 <span className="text-[10px] font-mono font-bold uppercase bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200/60">
                   {plan.billing_frequency} Cycle
                 </span>

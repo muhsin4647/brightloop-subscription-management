@@ -68,7 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
             </div>
             <div>
               <span className="font-extrabold text-lg tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
-                Revora
+                Brightloop
               </span>
             </div>
           </div>
@@ -142,7 +142,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
       <Modal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
-        title="Revora Pro Features"
+        title="Brightloop Pro Features"
         subtitle="Scale your subscription operations with enterprise automation"
         maxWidth="max-w-md"
       >

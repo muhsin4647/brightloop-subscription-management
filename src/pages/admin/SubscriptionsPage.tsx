@@ -142,7 +142,7 @@ export const SubscriptionsPage: React.FC = () => {
         </div>
       )}
 
-      {/* KPI Cards Strip matching Revora layout */}
+      {/* KPI Cards Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-2 pb-2">
         <div className="space-y-1">
           <div className="text-xs font-semibold text-slate-500">Active Subscriptions</div>
@@ -413,7 +413,7 @@ export const SubscriptionsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Subscription Detail Modal matching Revora aesthetic */}
+      {/* Subscription Detail Modal */}
       {selectedSub && (
         <Modal
           isOpen={!!selectedSub}
